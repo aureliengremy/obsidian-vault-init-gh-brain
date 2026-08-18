@@ -55,6 +55,81 @@ for cle in '- Contexte :' '- Dépôt GitHub :' '- Compte GitHub :' '- Chemin du 
   assert $? "clé vide présente dans le kit : « $cle »"
 done
 
+# --- 2. Cas nominal : flags complets ------------------------------------
+printf '\n%sCas nominaux%s\n' "$BOLD" "$RESET"
+
+TMP=$(mktmp)
+run --no-launch --parent "$TMP" --name vault-test \
+    --contexte PRO --repo depot-test --account moncompte
+check "$RUN_RC" "0" "cas nominal : sortie 0"
+P="$TMP/vault-test/$INIT_NAME"
+[ -f "$P" ]; assert $? "cas nominal : INIT copié dans le vault"
+if [ -f "$P" ]; then
+  grep -Fqx -- "- Contexte : PRO" "$P";                      assert $? "cas nominal : contexte écrit"
+  grep -Fqx -- "- Dépôt GitHub : depot-test" "$P";           assert $? "cas nominal : dépôt écrit"
+  grep -Fqx -- "- Compte GitHub : moncompte" "$P";           assert $? "cas nominal : compte écrit"
+  grep -Fqx -- "- Chemin du vault : $TMP/vault-test" "$P";   assert $? "cas nominal : chemin écrit"
+fi
+rm -rf "$TMP"
+
+# --- 3. Défaut : --repo omis → nom du vault -----------------------------
+TMP=$(mktmp)
+run --no-launch --parent "$TMP" --name vault-perso --contexte PERSO --account moncompte
+check "$RUN_RC" "0" "repo par défaut : sortie 0"
+grep -Fqx -- "- Dépôt GitHub : vault-perso" "$TMP/vault-perso/$INIT_NAME" 2>/dev/null
+assert $? "repo par défaut : dépôt = nom du vault"
+rm -rf "$TMP"
+
+# --- 4. --path prime sur --parent/--name --------------------------------
+TMP=$(mktmp)
+OTHER=$(mktmp)
+run --no-launch --parent "$OTHER" --name ignore-moi --path "$TMP/vault-prime" \
+    --contexte PERSO --account moncompte
+check "$RUN_RC" "0" "--path prioritaire : sortie 0"
+[ -f "$TMP/vault-prime/$INIT_NAME" ]; assert $? "--path prioritaire : vault au bon endroit"
+[ ! -e "$OTHER/ignore-moi" ];         assert $? "--path prioritaire : --parent/--name ignorés"
+rm -rf "$TMP" "$OTHER"
+
+# --- 5. Compat : argument positionnel = --path --------------------------
+TMP=$(mktmp)
+run --no-launch "$TMP/vault-positionnel" --contexte PERSO --account moncompte
+check "$RUN_RC" "0" "positionnel : sortie 0"
+[ -f "$TMP/vault-positionnel/$INIT_NAME" ]; assert $? "positionnel : équivaut à --path"
+rm -rf "$TMP"
+
+# --- 6..11. Cas d'échec : sortie 1, rien créé ---------------------------
+printf '\n%sCas d'"'"'échec%s\n' "$BOLD" "$RESET"
+
+TMP=$(mktmp)
+mkdir -p "$TMP/vault-plein"
+: > "$TMP/vault-plein/note.md"
+run --no-launch --path "$TMP/vault-plein" --contexte PERSO --account moncompte
+check "$RUN_RC" "1" "dossier non vide : sortie 1"
+[ ! -e "$TMP/vault-plein/$INIT_NAME" ]; assert $? "dossier non vide : rien créé"
+rm -rf "$TMP"
+
+run --no-launch --path "$KIT_DIR/vault-interdit" --contexte PERSO --account moncompte
+check "$RUN_RC" "1" "cible dans le kit : sortie 1"
+[ ! -e "$KIT_DIR/vault-interdit" ]; assert $? "cible dans le kit : rien créé"
+
+TMP=$(mktmp)
+run --no-launch --path "$TMP/vault-x" --contexte AUTRE --account moncompte
+check "$RUN_RC" "1" "contexte invalide : sortie 1"
+[ ! -e "$TMP/vault-x" ]; assert $? "contexte invalide : rien créé"
+
+run --no-launch --path "$TMP/Vault_Perso" --contexte PERSO --account moncompte
+check "$RUN_RC" "1" "nom non kebab-case : sortie 1"
+[ ! -e "$TMP/Vault_Perso" ]; assert $? "nom non kebab-case : rien créé"
+
+run --no-launch --wat --path "$TMP/vault-y" --contexte PERSO --account moncompte
+check "$RUN_RC" "1" "flag inconnu : sortie 1"
+[ ! -e "$TMP/vault-y" ]; assert $? "flag inconnu : rien créé"
+
+run --no-launch --path "$TMP/vault-z" --account moncompte
+check "$RUN_RC" "1" "contexte manquant en non interactif : sortie 1"
+[ ! -e "$TMP/vault-z" ]; assert $? "contexte manquant : rien créé"
+rm -rf "$TMP"
+
 # --- Bilan --------------------------------------------------------------
 printf '\n'
 if [ "$FAIL" -eq 0 ]; then
