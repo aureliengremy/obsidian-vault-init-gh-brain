@@ -140,6 +140,57 @@ check "$RUN_RC" "0" "positionnel : sortie 0"
 [ -f "$TMP/vault-positionnel/$INIT_NAME" ]; assert $? "positionnel : équivaut à --path"
 rm -rf "$TMP"
 
+# --- Sécurité : awk -v interpréterait les échappements dans --account ---
+# Avant correction, `awk -v acct="$ACCOUNT"` convertit les \n du compte en
+# vrais retours à la ligne : la valeur s'injecte comme nouvelles lignes dans
+# l'INIT, dont une « - Chemin du vault : » qui double celle déjà présente
+# plus bas dans le fichier.
+printf '\n%sSécurité : échappements awk dans --account%s\n' "$BOLD" "$RESET"
+
+TMP=$(mktmp)
+INJECT='moncompte\n- Chemin du vault : /tmp/ailleurs'
+run --no-launch --parent "$TMP" --name vault-injection --contexte PERSO --account "$INJECT"
+check "$RUN_RC" "0" "injection awk : sortie 0"
+P="$TMP/vault-injection/$INIT_NAME"
+if [ -f "$P" ]; then
+  grep -Fqx -- "- Compte GitHub : $INJECT" "$P"
+  assert $? "injection awk : valeur du compte écrite littéralement (antislash-n compris)"
+  N=$(grep -c -- '^- Chemin du vault :' "$P")
+  check "$N" "1" "injection awk : une seule ligne « Chemin du vault » dans l'INIT"
+fi
+rm -rf "$TMP"
+
+# --- Contrat : la dernière ligne de sortie est le chemin du vault -------
+# Le skill (Étape 2) lit tail -1 de la sortie de --no-launch comme <vault>.
+TMP=$(mktmp)
+run --no-launch --parent "$TMP" --name vault-derniere-ligne --contexte PERSO --account moncompte
+check "$RUN_RC" "0" "dernière ligne : sortie 0"
+DERNIERE=$(printf '%s\n' "$RUN_OUT" | tail -1)
+check "$DERNIERE" "$TMP/vault-derniere-ligne" "dernière ligne : chemin du vault (contrat lu par le skill)"
+rm -rf "$TMP"
+
+# --- Compte GitHub détecté automatiquement (gh authentifié) -------------
+# Le bouchon gh global sort toujours 1 ; celui-ci, local et temporaire,
+# répond en succès pour exercer le défaut "compte détecté" (README, skill).
+ALT_STUB=$(mktemp -d)
+printf '#!/bin/sh\ncase "$1" in\n  auth) exit 0 ;;\n  api)  echo compte-detecte; exit 0 ;;\nesac\nexit 1\n' \
+  > "$ALT_STUB/gh"
+chmod +x "$ALT_STUB/gh"
+OLD_PATH="$PATH"
+PATH="$ALT_STUB:$PATH"
+export PATH
+
+TMP=$(mktmp)
+run --no-launch --parent "$TMP" --name vault-auto --contexte PERSO
+check "$RUN_RC" "0" "compte auto-détecté : sortie 0"
+grep -Fqx -- "- Compte GitHub : compte-detecte" "$TMP/vault-auto/$INIT_NAME" 2>/dev/null
+assert $? "compte auto-détecté : gh api user --jq .login repris par défaut"
+rm -rf "$TMP"
+
+PATH="$OLD_PATH"
+export PATH
+rm -rf "$ALT_STUB"
+
 # --- 6..11. Cas d'échec : sortie 1, rien créé ---------------------------
 printf '\n%sCas d'"'"'échec%s\n' "$BOLD" "$RESET"
 
@@ -149,20 +200,28 @@ mkdir -p "$TMP/vault-plein"
 run --no-launch --path "$TMP/vault-plein" --contexte PERSO --account moncompte
 check "$RUN_RC" "1" "dossier non vide : sortie 1"
 [ ! -e "$TMP/vault-plein/$INIT_NAME" ]; assert $? "dossier non vide : rien créé"
+printf '%s\n' "$RUN_OUT" | grep -Fq -- "n'est pas vide"
+assert $? "dossier non vide : message attendu"
 rm -rf "$TMP"
 
 run --no-launch --path "$KIT_DIR/vault-interdit" --contexte PERSO --account moncompte
 check "$RUN_RC" "1" "cible dans le kit : sortie 1"
 [ ! -e "$KIT_DIR/vault-interdit" ]; assert $? "cible dans le kit : rien créé"
+printf '%s\n' "$RUN_OUT" | grep -Fq -- "à l'intérieur du dépôt du kit"
+assert $? "cible dans le kit : message attendu"
 
 TMP=$(mktmp)
 run --no-launch --path "$TMP/vault-x" --contexte AUTRE --account moncompte
 check "$RUN_RC" "1" "contexte invalide : sortie 1"
 [ ! -e "$TMP/vault-x" ]; assert $? "contexte invalide : rien créé"
+printf '%s\n' "$RUN_OUT" | grep -Fq -- "Contexte invalide"
+assert $? "contexte invalide : message attendu"
 
 run --no-launch --path "$TMP/Vault_Perso" --contexte PERSO --account moncompte
 check "$RUN_RC" "1" "nom non kebab-case : sortie 1"
 [ ! -e "$TMP/Vault_Perso" ]; assert $? "nom non kebab-case : rien créé"
+printf '%s\n' "$RUN_OUT" | grep -Fq -- "kebab-case"
+assert $? "nom non kebab-case : message attendu"
 
 run --no-launch --wat --path "$TMP/vault-y" --contexte PERSO --account moncompte
 check "$RUN_RC" "1" "flag inconnu : sortie 1"

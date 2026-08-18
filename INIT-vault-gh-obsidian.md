@@ -38,10 +38,12 @@ Puis, **dans tous les cas**, poser la question qui n'est jamais pré-remplie :
 
 Vérifications avant d'aller plus loin :
 
-- `gh auth status` confirme que le CLI est authentifié sur le compte indiqué.
-- En contexte `PRO`, si le bloc `## Paramètres` était vide (donc sans passage par
-  `init-vault.sh`), faire confirmer explicitement que ce compte est autorisé pour
-  du contenu de travail.
+- Exécuter `gh auth status` et vérifier que le compte authentifié correspond au
+  compte indiqué.
+- En contexte `PRO`, si la confirmation du compte n'a pas déjà eu lieu au cours
+  de cette session (le script ne la demande qu'en mode interactif), la demander
+  avant toute création de dépôt : ce compte est-il autorisé pour du contenu de
+  travail ?
 - **Toutes** les commandes de ce fichier s'exécutent dans le dossier indiqué par
   « Chemin du vault » — jamais dans le dépôt du kit qui a produit ce fichier.
 
@@ -427,8 +429,10 @@ Le remplir une première fois (vide mais structuré).
 ## Phase 3 — Git & GitHub
 
 1. `git init` puis premier commit : `initialise le vault (structure PARA)`.
-2. Créer le dépôt : `gh repo create <nom> --private --source=. --push`
-   (si `gh` absent : fournir les commandes manuelles et s'arrêter là).
+2. Créer le dépôt : `gh repo create <compte>/<nom> --private --source=. --push`,
+   où `<compte>` est la valeur de la clé « Compte GitHub »
+   (si `gh` n'est pas authentifié sur le bon compte : fournir les commandes
+   manuelles et s'arrêter là).
 3. Vérifications finales :
    - `git remote -v` → un seul remote, le bon compte.
    - Aucun sous-module, aucun chemin pointant hors du vault.

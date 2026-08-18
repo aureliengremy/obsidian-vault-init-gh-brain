@@ -94,7 +94,7 @@ puis dérouler ses phases :
    ```bash
    cd <vault> && git init
    cd <vault> && git add -A && git commit -m "initialise le vault (structure PARA)"
-   cd <vault> && gh repo create <depot> --private --source=. --push
+   cd <vault> && gh repo create <compte>/<depot> --private --source=. --push
    ```
    Si `gh` n'est pas authentifié sur le bon compte, ne pas créer le dépôt : fournir
    les commandes manuelles (ancrées de la même façon), comme l'INIT le prévoit.

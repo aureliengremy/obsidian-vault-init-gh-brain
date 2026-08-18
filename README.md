@@ -5,7 +5,7 @@
 Un seul fichier de recette (`INIT-vault-gh-obsidian.md`), un script de lancement, et Claude Code génère tout le reste : arborescence, conventions, templates, vues Bases, dashboard, dépôt GitHub privé.
 
 ```bash
-./init-vault.sh ~/vaults/vault-perso
+./init-vault.sh
 ```
 
 ---
@@ -79,7 +79,7 @@ obsidian-vault-init-gh-brain/
 
 ## Usage
 
-Trois entrées, un seul comportement. Dans tous les cas, l'agent demande votre profil,
+Trois entrées via le kit, plus l'INIT utilisable seul. Dans tous les cas, l'agent demande votre profil,
 **présente un plan et attend votre validation** avant d'écrire quoi que ce soit.
 
 Les trois supposent le kit cloné et le terminal placé dedans :

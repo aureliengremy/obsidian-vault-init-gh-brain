@@ -224,19 +224,18 @@ fi
 TMP_INIT=$(mktemp "${TMPDIR:-/tmp}/init-vault.XXXXXX")
 trap 'rm -f "$TMP_INIT"' EXIT
 
-LC_ALL=C awk \
-  -v ctx="$CONTEXTE" -v repo="$REPO" -v acct="$ACCOUNT" -v vpath="$TARGET_ABS" '
-  /^- Contexte :/        { print "- Contexte : " ctx;      next }
-  /^- Dépôt GitHub :/    { print "- Dépôt GitHub : " repo; next }
-  /^- Compte GitHub :/   { print "- Compte GitHub : " acct; next }
-  /^- Chemin du vault :/ { print "- Chemin du vault : " vpath; next }
+CTX="$CONTEXTE" REPO_V="$REPO" ACCT="$ACCOUNT" VPATH="$TARGET_ABS" LC_ALL=C awk '
+  /^- Contexte :/        { print "- Contexte : " ENVIRON["CTX"];         next }
+  /^- Dépôt GitHub :/    { print "- Dépôt GitHub : " ENVIRON["REPO_V"];  next }
+  /^- Compte GitHub :/   { print "- Compte GitHub : " ENVIRON["ACCT"];   next }
+  /^- Chemin du vault :/ { print "- Chemin du vault : " ENVIRON["VPATH"]; next }
   { print }
 ' "$INIT_FILE" > "$TMP_INIT"
 
 grep -Fqx -- "- Contexte : $CONTEXTE" "$TMP_INIT" \
   || die "Le bloc ## Paramètres n'a pas pu être rempli — l'INIT du kit a-t-il été modifié ?"
 
-mkdir -p "$TARGET_ABS"
+mkdir -p "$TARGET_ABS" 2>/dev/null || die "Impossible de créer $TARGET_ABS (droits insuffisants ?)."
 ok "Dossier prêt : $TARGET_ABS"
 
 mv "$TMP_INIT" "$TARGET_ABS/$INIT_NAME"
