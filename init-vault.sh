@@ -76,12 +76,25 @@ resolve_abs() {
 }
 
 # ask <NOM_VAR> <libellé> [défaut]
+# Interactif : demande, avec le défaut entre crochets (Entrée l'accepte).
 # Non interactif : applique le défaut, ou meurt si aucun défaut.
 ask() {
-  local __var=$1 __prompt=$2 __default=${3:-}
+  local __var=$1 __prompt=$2 __default=${3:-} __reply
   [ -z "${!__var}" ] || return 0
-  [ -n "$__default" ] || die "Valeur manquante : $__prompt. Fournis le flag correspondant."
-  printf -v "$__var" '%s' "$__default"
+  if ! is_tty; then
+    [ -n "$__default" ] || die "Valeur manquante : $__prompt. Fournis le flag correspondant."
+    printf -v "$__var" '%s' "$__default"
+    return 0
+  fi
+  while :; do
+    if [ -n "$__default" ]; then printf '%s [%s] : ' "$__prompt" "$__default"
+    else printf '%s : ' "$__prompt"; fi
+    read -r __reply || __reply=""
+    [ -n "$__reply" ] || __reply=$__default
+    [ -n "$__reply" ] && break
+    warn "Une valeur est requise."
+  done
+  printf -v "$__var" '%s' "$__reply"
 }
 
 # --- Arguments ----------------------------------------------------------
@@ -154,7 +167,14 @@ if [ -n "$CONTEXTE" ]; then
   CONTEXTE=$(normalise_contexte "$CONTEXTE") \
     || die "Contexte invalide : attendu PERSO ou PRO."
 else
-  die "Valeur manquante : contexte. Fournis --contexte PERSO|PRO."
+  is_tty || die "Valeur manquante : contexte. Fournis --contexte PERSO|PRO."
+  CTX_REPLY=""
+  while :; do
+    printf 'Contexte — 1) PERSO  2) PRO : '
+    read -r CTX_REPLY || CTX_REPLY=""
+    if CONTEXTE=$(normalise_contexte "$CTX_REPLY"); then break; fi
+    warn "Réponds PERSO, PRO, 1 ou 2."
+  done
 fi
 
 # Chemin cible et nom du vault
@@ -170,6 +190,18 @@ is_kebab "$NAME" \
 
 ask REPO    "Nom du dépôt GitHub" "$NAME"
 ask ACCOUNT "Compte ou organisation GitHub" "$GH_ACCOUNT"
+
+# En contexte PRO, le compte doit être confirmé de vive voix.
+# Non interactif : l'appelant (skill ou flags) porte cette responsabilité.
+if [ "$CONTEXTE" = "PRO" ] && is_tty; then
+  PRO_REPLY=""
+  printf 'Contexte PRO : le compte « %s » est-il autorisé pour du contenu de travail ? [o/N] ' "${ACCOUNT:-?}"
+  read -r PRO_REPLY || PRO_REPLY=""
+  case "$PRO_REPLY" in
+    [oOyY]*) ok "Compte confirmé" ;;
+    *)       die "Confirmation refusée. Rien n'a été créé." ;;
+  esac
+fi
 
 # --- Garde-fous ---------------------------------------------------------
 # Le vault ne doit JAMAIS être créé dans le dépôt du kit

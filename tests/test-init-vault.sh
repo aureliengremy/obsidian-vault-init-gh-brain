@@ -51,6 +51,14 @@ run() {
   return 0
 }
 
+# run_tty <réponses-sur-stdin> <args...> : force le mode interactif
+run_tty() {
+  local answers=$1; shift
+  RUN_OUT=$(printf '%s' "$answers" | VAULT_INIT_ASSUME_TTY=1 "$SCRIPT" "$@" 2>&1)
+  RUN_RC=$?
+  return 0
+}
+
 printf '\n%sTests init-vault.sh%s\n\n' "$BOLD" "$RESET"
 
 # --- 1. Le kit expose le bloc Paramètres vide ---------------------------
@@ -155,6 +163,81 @@ check "$RUN_RC" "1" "substitution impossible : sortie 1"
 rm -rf "$FAUX_KIT" "$TMP"
 
 rm -rf "$STUB_DIR"
+
+# --- 12..16. Mode interactif -------------------------------------------
+printf '\n%sMode interactif%s\n' "$BOLD" "$RESET"
+
+# Ordre des questions : parent, nom, contexte, dépôt, compte [, confirmation PRO]
+TMP=$(mktmp)
+run_tty "$TMP
+vault-inter
+1
+depot-inter
+moncompte
+" --no-launch
+check "$RUN_RC" "0" "interactif : sortie 0"
+P="$TMP/vault-inter/$INIT_NAME"
+[ -f "$P" ]; assert $? "interactif : vault créé"
+if [ -f "$P" ]; then
+  grep -Fqx -- "- Contexte : PERSO" "$P";            assert $? "interactif : « 1 » vaut PERSO"
+  grep -Fqx -- "- Dépôt GitHub : depot-inter" "$P";  assert $? "interactif : dépôt saisi"
+  grep -Fqx -- "- Compte GitHub : moncompte" "$P";   assert $? "interactif : compte saisi"
+fi
+rm -rf "$TMP"
+
+# Entrée vide sur le dépôt → défaut = nom du vault
+TMP=$(mktmp)
+run_tty "$TMP
+vault-defaut
+PERSO
+
+moncompte
+" --no-launch
+check "$RUN_RC" "0" "interactif défaut : sortie 0"
+grep -Fqx -- "- Dépôt GitHub : vault-defaut" "$TMP/vault-defaut/$INIT_NAME" 2>/dev/null
+assert $? "interactif défaut : Entrée reprend le nom du vault"
+rm -rf "$TMP"
+
+# Contexte invalide puis valide → le script reboucle
+TMP=$(mktmp)
+run_tty "$TMP
+vault-boucle
+nimportequoi
+PRO
+depot-boucle
+moncompte
+o
+" --no-launch
+check "$RUN_RC" "0" "interactif boucle : sortie 0"
+grep -Fqx -- "- Contexte : PRO" "$TMP/vault-boucle/$INIT_NAME" 2>/dev/null
+assert $? "interactif boucle : contexte finalement PRO"
+rm -rf "$TMP"
+
+# PRO : confirmation refusée → sortie 1, rien créé
+TMP=$(mktmp)
+run_tty "$TMP
+vault-refus
+PRO
+depot-refus
+moncompte
+n
+" --no-launch
+check "$RUN_RC" "1" "PRO refusé : sortie 1"
+[ ! -e "$TMP/vault-refus" ]; assert $? "PRO refusé : rien créé"
+rm -rf "$TMP"
+
+# PRO : confirmation acceptée → vault créé
+TMP=$(mktmp)
+run_tty "$TMP
+vault-accepte
+PRO
+depot-accepte
+moncompte
+o
+" --no-launch
+check "$RUN_RC" "0" "PRO accepté : sortie 0"
+[ -f "$TMP/vault-accepte/$INIT_NAME" ]; assert $? "PRO accepté : vault créé"
+rm -rf "$TMP"
 
 # --- Bilan --------------------------------------------------------------
 printf '\n'
