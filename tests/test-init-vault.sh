@@ -140,18 +140,19 @@ check "$RUN_RC" "1" "contexte manquant en non interactif : sortie 1"
 rm -rf "$TMP"
 
 # --- 12. Substitution impossible : sortie 1, rien créé ------------------
+# Tourne contre une copie jetable du kit : aucun fichier versionné n'est
+# touché (pas de sauvegarde ni de trap de restauration nécessaires).
+FAUX_KIT=$(mktmp)
 TMP=$(mktmp)
-KIT_BACKUP=$(mktemp "${TMPDIR:-/tmp}/kit-init-backup.XXXXXX")
-cp "$KIT_INIT" "$KIT_BACKUP"
-trap 'cp "$KIT_BACKUP" "$KIT_INIT"; rm -f "$KIT_BACKUP"' EXIT
-sed 's/^- Contexte :$/- Contexte ALTEREE :/' "$KIT_BACKUP" > "$KIT_INIT"
-run --no-launch --path "$TMP/vault-altere" --contexte PERSO --account moncompte
-cp "$KIT_BACKUP" "$KIT_INIT"
-rm -f "$KIT_BACKUP"
-trap - EXIT
+cp "$SCRIPT" "$FAUX_KIT/init-vault.sh"
+chmod +x "$FAUX_KIT/init-vault.sh"
+sed 's/^- Contexte :$/- Contexte ALTEREE :/' "$KIT_INIT" > "$FAUX_KIT/$INIT_NAME"
+RUN_OUT=$("$FAUX_KIT/init-vault.sh" --no-launch --path "$TMP/vault-altere" \
+          --contexte PERSO --account moncompte </dev/null 2>&1)
+RUN_RC=$?
 check "$RUN_RC" "1" "substitution impossible : sortie 1"
 [ ! -e "$TMP/vault-altere" ]; assert $? "substitution impossible : rien créé"
-rm -rf "$TMP"
+rm -rf "$FAUX_KIT" "$TMP"
 
 rm -rf "$STUB_DIR"
 
