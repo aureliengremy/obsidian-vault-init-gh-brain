@@ -162,8 +162,6 @@ check "$RUN_RC" "1" "substitution impossible : sortie 1"
 [ ! -e "$TMP/vault-altere" ]; assert $? "substitution impossible : rien créé"
 rm -rf "$FAUX_KIT" "$TMP"
 
-rm -rf "$STUB_DIR"
-
 # --- 12..16. Mode interactif -------------------------------------------
 printf '\n%sMode interactif%s\n' "$BOLD" "$RESET"
 
@@ -238,6 +236,8 @@ o
 check "$RUN_RC" "0" "PRO accepté : sortie 0"
 [ -f "$TMP/vault-accepte/$INIT_NAME" ]; assert $? "PRO accepté : vault créé"
 rm -rf "$TMP"
+
+rm -rf "$STUB_DIR"
 
 # --- Bilan --------------------------------------------------------------
 printf '\n'
