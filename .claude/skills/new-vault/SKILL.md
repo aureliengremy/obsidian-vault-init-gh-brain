@@ -40,8 +40,11 @@ Le compte par défaut se détecte ainsi :
 gh api user --jq .login
 ```
 
-Si la commande échoue, laisser le champ vide et prévenir que la création du dépôt
-sera manuelle.
+Si la commande échoue ou ne renvoie rien, ne pas laisser le champ vide : le script
+exige une valeur non vide en mode non interactif et s'arrête sinon (`Valeur
+manquante : Compte ou organisation GitHub`). **Demander le compte explicitement à
+l'utilisateur**, en prévenant que `gh` n'étant pas utilisable, la création du dépôt
+sera manuelle (Phase 3 de l'INIT).
 
 En contexte **PRO**, poser une sixième question, à part entière : *« Le compte
 `<compte>` est-il autorisé pour du contenu de travail ? »* Une réponse négative
@@ -66,7 +69,19 @@ Si le script sort en erreur (dossier non vide, cible dans le kit, nom invalide,
 prérequis manquant), **rapporter le message et s'arrêter**. Ne pas contourner à la
 main : le script est le garde-fou.
 
+En cas de succès, la dernière ligne affichée par le script est le chemin absolu du
+vault préparé. C'est cette valeur exacte qu'il faut retenir comme `<vault>` pour la
+suite — pas une reconstruction manuelle de `<parent>/<nom>` : le script résout les
+`~` et les chemins relatifs, le résultat peut différer littéralement.
+
 ## Étape 3 — Exécution de l'INIT
+
+Première action, avant toute autre commande de cette étape : se placer dans le
+dossier du vault, pas dans le kit.
+
+```bash
+cd <vault>
+```
 
 Lire `<vault>/INIT-vault-gh-obsidian.md` — son bloc `## Paramètres` est déjà rempli —
 puis dérouler ses phases :
@@ -75,9 +90,14 @@ puis dérouler ses phases :
 2. **Phase 1 bis** : présenter le plan et **attendre une validation explicite**.
    Aucun fichier avant validation.
 3. **Phase 2** : générer l'arborescence et les fichiers, dans le dossier du vault.
-4. **Phase 3** : `git init`, premier commit, `gh repo create <depot> --private
-   --source=. --push`. Si `gh` n'est pas authentifié sur le bon compte, ne pas créer
-   le dépôt : fournir les commandes manuelles, comme l'INIT le prévoit.
+4. **Phase 3** : chaque commande cible explicitement le vault, jamais le kit :
+   ```bash
+   cd <vault> && git init
+   cd <vault> && git add -A && git commit -m "initialise le vault (structure PARA)"
+   cd <vault> && gh repo create <depot> --private --source=. --push
+   ```
+   Si `gh` n'est pas authentifié sur le bon compte, ne pas créer le dépôt : fournir
+   les commandes manuelles (ancrées de la même façon), comme l'INIT le prévoit.
 5. **Phase 4** : archiver l'INIT dans `4-archives/`, committer.
 
 ## Étape 4 — Compte rendu
