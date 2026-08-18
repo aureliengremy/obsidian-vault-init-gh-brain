@@ -65,7 +65,7 @@ run_tty_limite() {
   local answers=$1; shift
   local out pid n
   out=$(mktemp)
-  ( printf '%s' "$answers" | VAULT_INIT_ASSUME_TTY=1 "$SCRIPT" "$@" >"$out" 2>&1 ) &
+  printf '%s' "$answers" | VAULT_INIT_ASSUME_TTY=1 "$SCRIPT" "$@" >"$out" 2>&1 &
   pid=$!
   n=0
   while kill -0 "$pid" 2>/dev/null && [ "$n" -lt 50 ]; do
@@ -271,7 +271,7 @@ TMP=$(mktmp)
 run_tty_limite "$TMP
 " --no-launch
 check "$RUN_RC" "1" "EOF sur le nom : sortie 1 (pas de boucle)"
-[ ! -e "$TMP/vault-inexistant" ]; assert $? "EOF sur le nom : rien créé"
+[ -z "$(ls -A "$TMP" 2>/dev/null)" ]; assert $? "EOF sur le nom : rien créé"
 rm -rf "$TMP"
 
 # Parent et nom fournis, EOF au moment du contexte
