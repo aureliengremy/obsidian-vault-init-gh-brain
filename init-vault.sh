@@ -187,8 +187,10 @@ if [ -e "$TARGET_ABS" ]; then
 fi
 
 # --- Préparation du dossier --------------------------------------------
-mkdir -p "$TARGET_ABS"
-ok "Dossier prêt : $TARGET_ABS"
+# L'INIT paramétré est construit et validé AVANT toute création :
+# un échec ne doit laisser ni dossier ni fichier derrière lui.
+TMP_INIT=$(mktemp "${TMPDIR:-/tmp}/init-vault.XXXXXX")
+trap 'rm -f "$TMP_INIT"' EXIT
 
 LC_ALL=C awk \
   -v ctx="$CONTEXTE" -v repo="$REPO" -v acct="$ACCOUNT" -v vpath="$TARGET_ABS" '
@@ -197,10 +199,16 @@ LC_ALL=C awk \
   /^- Compte GitHub :/   { print "- Compte GitHub : " acct; next }
   /^- Chemin du vault :/ { print "- Chemin du vault : " vpath; next }
   { print }
-' "$INIT_FILE" > "$TARGET_ABS/$INIT_NAME"
+' "$INIT_FILE" > "$TMP_INIT"
 
-grep -Fqx -- "- Contexte : $CONTEXTE" "$TARGET_ABS/$INIT_NAME" \
+grep -Fqx -- "- Contexte : $CONTEXTE" "$TMP_INIT" \
   || die "Le bloc ## Paramètres n'a pas pu être rempli — l'INIT du kit a-t-il été modifié ?"
+
+mkdir -p "$TARGET_ABS"
+ok "Dossier prêt : $TARGET_ABS"
+
+mv "$TMP_INIT" "$TARGET_ABS/$INIT_NAME"
+chmod 644 "$TARGET_ABS/$INIT_NAME"
 ok "INIT copié avec ses paramètres"
 
 # --- Récapitulatif ------------------------------------------------------

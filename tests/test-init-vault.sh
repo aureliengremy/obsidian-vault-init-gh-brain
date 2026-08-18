@@ -33,6 +33,15 @@ check() {
 # mktmp : dossier temporaire au chemin résolu (macOS : /var → /private/var)
 mktmp() { local d; d=$(mktemp -d); (cd "$d" && pwd); }
 
+# Bac à sable : ni gh ni claude réels pendant les tests (aucun réseau,
+# et un résultat indépendant de l'état d'authentification de la machine).
+STUB_DIR=$(mktemp -d)
+printf '#!/bin/sh\nexit 1\n' > "$STUB_DIR/gh"
+printf '#!/bin/sh\nexit 1\n' > "$STUB_DIR/claude"
+chmod +x "$STUB_DIR/gh" "$STUB_DIR/claude"
+PATH="$STUB_DIR:$PATH"
+export PATH
+
 # run <args...> : exécute le script sans TTY, capture sortie et code retour
 RUN_OUT=""
 RUN_RC=0
@@ -129,6 +138,22 @@ run --no-launch --path "$TMP/vault-z" --account moncompte
 check "$RUN_RC" "1" "contexte manquant en non interactif : sortie 1"
 [ ! -e "$TMP/vault-z" ]; assert $? "contexte manquant : rien créé"
 rm -rf "$TMP"
+
+# --- 12. Substitution impossible : sortie 1, rien créé ------------------
+TMP=$(mktmp)
+KIT_BACKUP=$(mktemp "${TMPDIR:-/tmp}/kit-init-backup.XXXXXX")
+cp "$KIT_INIT" "$KIT_BACKUP"
+trap 'cp "$KIT_BACKUP" "$KIT_INIT"; rm -f "$KIT_BACKUP"' EXIT
+sed 's/^- Contexte :$/- Contexte ALTEREE :/' "$KIT_BACKUP" > "$KIT_INIT"
+run --no-launch --path "$TMP/vault-altere" --contexte PERSO --account moncompte
+cp "$KIT_BACKUP" "$KIT_INIT"
+rm -f "$KIT_BACKUP"
+trap - EXIT
+check "$RUN_RC" "1" "substitution impossible : sortie 1"
+[ ! -e "$TMP/vault-altere" ]; assert $? "substitution impossible : rien créé"
+rm -rf "$TMP"
+
+rm -rf "$STUB_DIR"
 
 # --- Bilan --------------------------------------------------------------
 printf '\n'
