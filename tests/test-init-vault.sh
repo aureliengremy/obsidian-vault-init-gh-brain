@@ -304,6 +304,28 @@ check "$RUN_RC" "1" "cible dans le kit : sortie 1"
 printf '%s\n' "$RUN_OUT" | grep -Fq -- "à l'intérieur du dépôt du kit"
 assert $? "cible dans le kit : message attendu"
 
+# Le garde-fou doit résister à un lien symbolique vers le kit : une
+# comparaison littérale des chemins se laisserait contourner.
+LIEN=$(mktmp)
+ln -s "$KIT_DIR" "$LIEN/kit"
+
+run --no-launch --path "$LIEN/kit/vault-lien-a" --contexte PERSO --account moncompte
+check "$RUN_RC" "1" "lien vers le kit (--path) : sortie 1"
+[ ! -e "$KIT_DIR/vault-lien-a" ]; assert $? "lien vers le kit (--path) : rien créé"
+
+run --no-launch --parent "$LIEN/kit" --name vault-lien-b --contexte PERSO --account moncompte
+check "$RUN_RC" "1" "lien vers le kit (--parent) : sortie 1"
+[ ! -e "$KIT_DIR/vault-lien-b" ]; assert $? "lien vers le kit (--parent) : rien créé"
+
+# Script atteint via le lien, cible désignée par son chemin réel
+RUN_OUT=$("$LIEN/kit/init-vault.sh" --no-launch --path "$KIT_DIR/vault-lien-c" \
+          --contexte PERSO --account moncompte </dev/null 2>&1)
+RUN_RC=$?
+check "$RUN_RC" "1" "script atteint par un lien : sortie 1"
+[ ! -e "$KIT_DIR/vault-lien-c" ]; assert $? "script atteint par un lien : rien créé"
+
+rm -rf "$LIEN"
+
 TMP=$(mktmp)
 run --no-launch --path "$TMP/vault-x" --contexte AUTRE --account moncompte
 check "$RUN_RC" "1" "contexte invalide : sortie 1"

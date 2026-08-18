@@ -226,9 +226,23 @@ fi
 # --- Garde-fous ---------------------------------------------------------
 # Le vault ne doit JAMAIS être créé dans le dépôt du kit
 # (Git imbriqué = croisement interdit entre l'outil et ses produits).
+# La comparaison porte sur les chemins PHYSIQUES : un lien symbolique
+# vers le kit contournerait une comparaison littérale. TARGET_ABS reste
+# logique — c'est lui qui est écrit dans l'INIT et affiché en dernière ligne.
+KIT_PHYS=$(cd "$SCRIPT_DIR" && pwd -P)
+TARGET_PARENT=$(dirname "$TARGET_ABS")
+if [ -d "$TARGET_PARENT" ]; then
+  TARGET_PARENT=$(cd "$TARGET_PARENT" && pwd -P)
+fi
+TARGET_PHYS="$TARGET_PARENT/$(basename "$TARGET_ABS")"
+
 case "$TARGET_ABS" in
   "$SCRIPT_DIR"|"$SCRIPT_DIR"/*)
     die "La cible est à l'intérieur du dépôt du kit. Choisis un dossier hors du kit (ex. ~/vaults/vault-perso)." ;;
+esac
+case "$TARGET_PHYS" in
+  "$KIT_PHYS"|"$KIT_PHYS"/*)
+    die "La cible est à l'intérieur du dépôt du kit (via un lien symbolique). Choisis un dossier hors du kit (ex. ~/vaults/vault-perso)." ;;
 esac
 
 if [ -e "$TARGET_ABS" ]; then
@@ -241,7 +255,8 @@ fi
 # --- Préparation du dossier --------------------------------------------
 # L'INIT paramétré est construit et validé AVANT toute création :
 # un échec ne doit laisser ni dossier ni fichier derrière lui.
-TMP_INIT=$(mktemp "${TMPDIR:-/tmp}/init-vault.XXXXXX")
+TMP_INIT=$(mktemp "${TMPDIR:-/tmp}/init-vault.XXXXXX" 2>/dev/null) \
+  || die "Impossible de créer un fichier temporaire dans ${TMPDIR:-/tmp} (dossier inexistant ?)."
 trap 'rm -f "$TMP_INIT"' EXIT
 
 CTX="$CONTEXTE" REPO_V="$REPO" ACCT="$ACCOUNT" VPATH="$TARGET_ABS" LC_ALL=C awk '
