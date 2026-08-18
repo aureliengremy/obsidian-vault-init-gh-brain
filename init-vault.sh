@@ -89,7 +89,7 @@ ask() {
   while :; do
     if [ -n "$__default" ]; then printf '%s [%s] : ' "$__prompt" "$__default"
     else printf '%s : ' "$__prompt"; fi
-    read -r __reply || __reply=""
+    read -r __reply || die "Entrée interrompue avant la réponse à : $__prompt."
     [ -n "$__reply" ] || __reply=$__default
     [ -n "$__reply" ] && break
     warn "Une valeur est requise."
@@ -171,7 +171,7 @@ else
   CTX_REPLY=""
   while :; do
     printf 'Contexte — 1) PERSO  2) PRO : '
-    read -r CTX_REPLY || CTX_REPLY=""
+    read -r CTX_REPLY || die "Entrée interrompue avant la réponse au contexte (PERSO/PRO)."
     if CONTEXTE=$(normalise_contexte "$CTX_REPLY"); then break; fi
     warn "Réponds PERSO, PRO, 1 ou 2."
   done
@@ -196,7 +196,7 @@ ask ACCOUNT "Compte ou organisation GitHub" "$GH_ACCOUNT"
 if [ "$CONTEXTE" = "PRO" ] && is_tty; then
   PRO_REPLY=""
   printf 'Contexte PRO : le compte « %s » est-il autorisé pour du contenu de travail ? [o/N] ' "${ACCOUNT:-?}"
-  read -r PRO_REPLY || PRO_REPLY=""
+  read -r PRO_REPLY || die "Entrée interrompue avant la confirmation PRO. Rien n'a été créé."
   case "$PRO_REPLY" in
     [oOyY]*) ok "Compte confirmé" ;;
     *)       die "Confirmation refusée. Rien n'a été créé." ;;

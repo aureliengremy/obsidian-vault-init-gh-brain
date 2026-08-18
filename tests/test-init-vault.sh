@@ -59,6 +59,32 @@ run_tty() {
   return 0
 }
 
+# run_tty_limite <réponses> <args...> : comme run_tty, mais tue le script
+# au bout de ~5 s et renvoie RUN_RC=124. Sert à prouver qu'il ne boucle pas.
+run_tty_limite() {
+  local answers=$1; shift
+  local out pid n
+  out=$(mktemp)
+  ( printf '%s' "$answers" | VAULT_INIT_ASSUME_TTY=1 "$SCRIPT" "$@" >"$out" 2>&1 ) &
+  pid=$!
+  n=0
+  while kill -0 "$pid" 2>/dev/null && [ "$n" -lt 50 ]; do
+    sleep 0.1
+    n=$((n + 1))
+  done
+  if kill -0 "$pid" 2>/dev/null; then
+    kill -9 "$pid" 2>/dev/null
+    wait "$pid" 2>/dev/null
+    RUN_RC=124
+  else
+    wait "$pid"
+    RUN_RC=$?
+  fi
+  RUN_OUT=$(cat "$out")
+  rm -f "$out"
+  return 0
+}
+
 printf '\n%sTests init-vault.sh%s\n\n' "$BOLD" "$RESET"
 
 # --- 1. Le kit expose le bloc Paramètres vide ---------------------------
@@ -235,6 +261,26 @@ o
 " --no-launch
 check "$RUN_RC" "0" "PRO accepté : sortie 0"
 [ -f "$TMP/vault-accepte/$INIT_NAME" ]; assert $? "PRO accepté : vault créé"
+rm -rf "$TMP"
+
+# --- 17..18. Fin de flux prématurée : le script meurt, il ne boucle pas --
+printf '\n%sFin de flux prématurée%s\n' "$BOLD" "$RESET"
+
+# Aucune réponse : EOF dès la première question sans défaut (le nom du vault)
+TMP=$(mktmp)
+run_tty_limite "$TMP
+" --no-launch
+check "$RUN_RC" "1" "EOF sur le nom : sortie 1 (pas de boucle)"
+[ ! -e "$TMP/vault-inexistant" ]; assert $? "EOF sur le nom : rien créé"
+rm -rf "$TMP"
+
+# Parent et nom fournis, EOF au moment du contexte
+TMP=$(mktmp)
+run_tty_limite "$TMP
+vault-eof
+" --no-launch
+check "$RUN_RC" "1" "EOF sur le contexte : sortie 1 (pas de boucle)"
+[ ! -e "$TMP/vault-eof" ]; assert $? "EOF sur le contexte : rien créé"
 rm -rf "$TMP"
 
 rm -rf "$STUB_DIR"
