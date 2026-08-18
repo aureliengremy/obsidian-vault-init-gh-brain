@@ -98,7 +98,12 @@ puis dérouler ses phases :
    ```
    Si `gh` n'est pas authentifié sur le bon compte, ne pas créer le dépôt : fournir
    les commandes manuelles (ancrées de la même façon), comme l'INIT le prévoit.
-5. **Phase 4** : archiver l'INIT dans `4-archives/`, committer.
+5. **Phase 4** : archiver l'INIT, avec le même ancrage — cette phase committe
+   elle aussi, elle ne doit jamais viser le kit :
+   ```bash
+   cd <vault> && git mv INIT-vault-gh-obsidian.md 4-archives/
+   cd <vault> && git commit -m "archive la recette d'initialisation"
+   ```
 
 ## Étape 4 — Compte rendu
 
