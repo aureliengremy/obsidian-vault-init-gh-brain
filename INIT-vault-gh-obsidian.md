@@ -432,17 +432,17 @@ Toutes les commandes suivantes s'exécutent depuis le dossier du vault
 (« Chemin du vault »), jamais depuis le dépôt du kit.
 
 1. `git init` puis premier commit : `initialise le vault (structure PARA)`.
-2. Créer le dépôt : `gh repo create <compte>/<nom> --private --source=. --push`,
-   où `<compte>` est la valeur de la clé « Compte GitHub » et `<nom>` celle de
+2. Créer le dépôt : `gh repo create <compte>/<depot> --private --source=. --push`,
+   où `<compte>` est la valeur de la clé « Compte GitHub » et `<depot>` celle de
    la clé « Dépôt GitHub ».
 3. Si `gh` n'est pas authentifié sur le bon compte, ne pas exécuter la commande
    ci-dessus : donner ces commandes manuelles à la place, puis s'arrêter là.
    - Créer le dépôt depuis l'interface GitHub (github.com/new) : propriétaire
-     `<compte>`, nom `<nom>`, visibilité **Private**, sans README ni
+     `<compte>`, nom `<depot>`, visibilité **Private**, sans README ni
      `.gitignore` (le vault en a déjà un).
    - Puis, depuis le dossier du vault :
      ```bash
-     git remote add origin https://github.com/<compte>/<nom>.git
+     git remote add origin https://github.com/<compte>/<depot>.git
      git branch -M main
      git push -u origin main
      ```

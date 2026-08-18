@@ -63,11 +63,12 @@ normalise_contexte() {
 
 is_kebab() { [[ $1 =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; }
 
-# refuse_multiligne <valeur> <nom du champ> — un saut de ligne corromprait le bloc
-refuse_multiligne() {
+# refuse_controle <valeur> <nom du champ>
+# Tout caractère de contrôle (saut de ligne, retour chariot, tabulation…)
+# corromprait le bloc ## Paramètres, que l'agent lit ligne par ligne.
+refuse_controle() {
   case "$1" in
-    *"
-"*) die "Valeur invalide pour $2 : un retour à la ligne n'est pas autorisé." ;;
+    *[[:cntrl:]]*) die "Valeur invalide pour $2 : les caractères de contrôle ne sont pas autorisés." ;;
   esac
 }
 
@@ -193,13 +194,13 @@ else
   TARGET_ABS=$(resolve_abs "$PARENT/$NAME")
 fi
 
-# Un retour à la ligne réel dans une valeur corromprait le bloc ## Paramètres
-# (nouvelles lignes injectées) et, pour --parent, le nom du dossier créé.
-# Ce contrôle précède les garde-fous et toute création : aucun des trois
-# volets de la correction (ce contrôle, is_kebab ancré, validation post-awk)
-# ne suffit seul.
-refuse_multiligne "$NAME" "le nom du vault"
-refuse_multiligne "$TARGET_ABS" "le chemin du vault"
+# Un caractère de contrôle réel dans une valeur (saut de ligne, retour
+# chariot, tabulation…) corromprait le bloc ## Paramètres (lignes injectées
+# ou écrasées) et, pour --parent, le nom du dossier créé. Ce contrôle précède
+# les garde-fous et toute création : aucun des trois volets de la correction
+# (ce contrôle, is_kebab ancré, validation post-awk) ne suffit seul.
+refuse_controle "$NAME" "le nom du vault"
+refuse_controle "$TARGET_ABS" "le chemin du vault"
 
 is_kebab "$NAME" \
   || die "Nom de vault invalide : « $NAME ». Attendu du kebab-case (ex. vault-perso)."
@@ -207,8 +208,8 @@ is_kebab "$NAME" \
 ask REPO    "Nom du dépôt GitHub" "$NAME"
 ask ACCOUNT "Compte ou organisation GitHub" "$GH_ACCOUNT"
 
-refuse_multiligne "$REPO" "le dépôt GitHub"
-refuse_multiligne "$ACCOUNT" "le compte GitHub"
+refuse_controle "$REPO" "le dépôt GitHub"
+refuse_controle "$ACCOUNT" "le compte GitHub"
 
 # En contexte PRO, le compte doit être confirmé de vive voix.
 # Non interactif : l'appelant (skill ou flags) porte cette responsabilité.
