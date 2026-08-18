@@ -933,7 +933,7 @@ puis dérouler ses phases :
 2. **Phase 1 bis** : présenter le plan et **attendre une validation explicite**.
    Aucun fichier avant validation.
 3. **Phase 2** : générer l'arborescence et les fichiers, dans le dossier du vault.
-4. **Phase 3** : `git init`, premier commit, `gh repo create <depot> --private
+4. **Phase 3** : `git init`, premier commit, `gh repo create <compte>/<depot> --private
    --source=. --push`. Si `gh` n'est pas authentifié sur le bon compte, ne pas créer
    le dépôt : fournir les commandes manuelles, comme l'INIT le prévoit.
 5. **Phase 4** : archiver l'INIT dans `4-archives/`, committer.

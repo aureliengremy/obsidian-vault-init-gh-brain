@@ -61,7 +61,15 @@ normalise_contexte() {
   esac
 }
 
-is_kebab() { printf '%s' "$1" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$'; }
+is_kebab() { [[ $1 =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; }
+
+# refuse_multiligne <valeur> <nom du champ> — un saut de ligne corromprait le bloc
+refuse_multiligne() {
+  case "$1" in
+    *"
+"*) die "Valeur invalide pour $2 : un retour à la ligne n'est pas autorisé." ;;
+  esac
+}
 
 # resolve_abs <chemin> → chemin absolu (tilde étendu, parent résolu si existant)
 resolve_abs() {
@@ -185,11 +193,22 @@ else
   TARGET_ABS=$(resolve_abs "$PARENT/$NAME")
 fi
 
+# Un retour à la ligne réel dans une valeur corromprait le bloc ## Paramètres
+# (nouvelles lignes injectées) et, pour --parent, le nom du dossier créé.
+# Ce contrôle précède les garde-fous et toute création : aucun des trois
+# volets de la correction (ce contrôle, is_kebab ancré, validation post-awk)
+# ne suffit seul.
+refuse_multiligne "$NAME" "le nom du vault"
+refuse_multiligne "$TARGET_ABS" "le chemin du vault"
+
 is_kebab "$NAME" \
   || die "Nom de vault invalide : « $NAME ». Attendu du kebab-case (ex. vault-perso)."
 
 ask REPO    "Nom du dépôt GitHub" "$NAME"
 ask ACCOUNT "Compte ou organisation GitHub" "$GH_ACCOUNT"
+
+refuse_multiligne "$REPO" "le dépôt GitHub"
+refuse_multiligne "$ACCOUNT" "le compte GitHub"
 
 # En contexte PRO, le compte doit être confirmé de vive voix.
 # Non interactif : l'appelant (skill ou flags) porte cette responsabilité.
@@ -234,6 +253,21 @@ CTX="$CONTEXTE" REPO_V="$REPO" ACCT="$ACCOUNT" VPATH="$TARGET_ABS" LC_ALL=C awk 
 
 grep -Fqx -- "- Contexte : $CONTEXTE" "$TMP_INIT" \
   || die "Le bloc ## Paramètres n'a pas pu être rempli — l'INIT du kit a-t-il été modifié ?"
+
+# Chaque clé doit apparaître exactement une fois : une valeur qui aurait
+# échappé aux contrôles ci-dessus (nouvelle ligne injectée) dupliquerait ou
+# ajouterait une clé ici. Ce contrôle est complémentaire du grep ci-dessus :
+# l'un détecte une substitution qui n'a pas pris, l'autre une clé absente ou
+# dupliquée.
+# Ancré en début de ligne (comme les motifs awk /^.../ ci-dessus) : une valeur
+# qui contient littéralement le texte d'une clé (ex. antislash-n suivi du nom
+# d'une clé, resté inerte sur sa propre ligne) ne doit pas compter comme une
+# clé dupliquée — seule une VRAIE ligne de clé en tête compte.
+for cle in "- Contexte :" "- Dépôt GitHub :" "- Compte GitHub :" "- Chemin du vault :"; do
+  n=$(grep -c -- "^$cle" "$TMP_INIT" || true)
+  [ "$n" -eq 1 ] \
+    || die "Le bloc ## Paramètres est corrompu ($n occurrence(s) de « $cle »)."
+done
 
 mkdir -p "$TARGET_ABS" 2>/dev/null || die "Impossible de créer $TARGET_ABS (droits insuffisants ?)."
 ok "Dossier prêt : $TARGET_ABS"
