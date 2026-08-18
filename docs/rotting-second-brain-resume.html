@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your AI Second Brain Is Slowly Rotting — Résumé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d10;
+    --panel:#14161b;
+    --panel-2:#181b21;
+    --line:#2a2e37;
+    --line-soft:#21242c;
+    --ink:#e9eaee;
+    --ink-dim:#9398a3;
+    --ink-faint:#5d626d;
+
+    --plan:#ef6a3d;   /* Le parcours — braise */
+    --cite:#4fb8cc;   /* Citations — froid, cristallin */
+    --keep:#74b69c;   /* À retenir — vert, ancré */
+    --warn:#d8a24a;   /* Réserve dans « à retenir » — ambre, pas vert */
+
+    --display:'Archivo', system-ui, sans-serif;
+    --body:'Inter', system-ui, sans-serif;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:96px}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--body); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(239,106,61,.3)}
+  a{color:inherit}
+
+  .wrap{max-width:960px; margin:0 auto; padding:0 24px}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:80px 0 44px; border-bottom:1px solid var(--line); position:relative; overflow:hidden}
+  .hero::after{ /* halo braise discret */
+    content:""; position:absolute; right:-180px; top:-140px; width:520px; height:520px;
+    background:radial-gradient(circle, color-mix(in srgb, var(--plan) 14%, transparent) 0%, transparent 62%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--ink-faint); margin:0 0 22px;
+  }
+  .hero h1{
+    font-family:var(--display); font-weight:900; text-transform:uppercase;
+    letter-spacing:-.02em; line-height:.92;
+    font-size:clamp(46px, 10vw, 104px); margin:0; text-wrap:balance;
+  }
+  .hero .sub{
+    font-family:var(--display); font-weight:600; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--ink-dim);
+    font-size:clamp(14px, 2.6vw, 21px); margin:16px 0 0;
+  }
+  .thesis{
+    margin:30px 0 0; max-width:640px; font-size:clamp(17px,2.4vw,20px);
+    color:var(--ink-dim); line-height:1.55;
+  }
+  .thesis b{color:var(--ink); font-weight:600}
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:28px;
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+  }
+  .meta-row .tag{
+    border:1px solid var(--line); border-radius:6px; padding:5px 10px;
+    text-transform:uppercase; letter-spacing:.08em; text-decoration:none;
+  }
+  .meta-row a.tag:hover{color:var(--ink); border-color:var(--ink-faint)}
+
+  /* stats — tuiles chiffrées du hero */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:34px;
+  }
+  .stat{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:16px 18px 14px;
+  }
+  .stat .n{
+    font-family:var(--display); font-weight:900; font-size:clamp(26px,4vw,38px);
+    line-height:1; color:var(--c, var(--ink)); font-variant-numeric:tabular-nums;
+  }
+  .stat .l{
+    font-family:var(--mono); font-size:11px; text-transform:uppercase;
+    letter-spacing:.12em; color:var(--ink-faint); margin-top:8px;
+  }
+
+  /* ---------- STICKY NAV ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(12,13,16,.82); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px;
+    padding:12px 24px; max-width:960px; margin:0 auto;
+  }
+  .nav-brand{
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    letter-spacing:.02em; font-size:13px; color:var(--ink); white-space:nowrap;
+  }
+  .nav-brand span{color:var(--ink-faint); font-weight:600}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-left:auto}
+  .chip{
+    font-family:var(--mono); font-size:12px; font-weight:500;
+    color:var(--ink-dim); text-decoration:none;
+    border:1px solid var(--line); border-radius:6px;
+    padding:5px 10px; transition:.18s; white-space:nowrap;
+  }
+  .chip:hover{color:var(--ink); border-color:var(--ink-faint)}
+  .chip.active{color:var(--bg); background:var(--ink); border-color:var(--ink)}
+
+  /* ---------- SECTIONS ---------- */
+  section.block{padding:56px 0; border-bottom:1px solid var(--line-soft)}
+  .kicker{
+    font-family:var(--mono); font-size:12px; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--c,var(--ink-faint)); margin:0 0 6px;
+  }
+  .h2{
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    letter-spacing:-.01em; font-size:clamp(26px,5vw,40px); margin:0 0 4px; line-height:1;
+  }
+  .lead{color:var(--ink-dim); margin:10px 0 32px; max-width:660px}
+
+  /* ---------- BARRE DE RÉPARTITION (poids des phases) ---------- */
+  .ratio{margin:0 0 40px}
+  .ratio-track{
+    display:flex; height:34px; border-radius:8px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .ratio-seg{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--bg); font-weight:700; white-space:nowrap; overflow:hidden;
+    background:var(--c); min-width:0;
+  }
+  .ratio-seg.dimmed{background:color-mix(in srgb, var(--c) 34%, var(--panel)); color:var(--ink-dim)}
+  .ratio-caption{
+    display:flex; justify-content:space-between; gap:12px; margin-top:8px;
+    font-family:var(--mono); font-size:11px; color:var(--ink-faint);
+    text-transform:uppercase; letter-spacing:.1em;
+  }
+
+  /* ---------- TIMELINE (le plan) ---------- */
+  .phase-lab{
+    display:flex; align-items:center; gap:12px; margin:30px 0 16px;
+    font-family:var(--mono); font-size:11px; text-transform:uppercase;
+    letter-spacing:.16em; color:var(--ink-faint);
+  }
+  .phase-lab::after{content:""; flex:1; height:1px; background:var(--line-soft)}
+  .phase-lab:first-of-type{margin-top:0}
+  .phase-lab .pct{color:var(--plan)}
+
+  .steps{list-style:none; margin:0; padding:0}
+  .step{
+    position:relative; display:grid; grid-template-columns:56px 1fr; gap:20px;
+    padding:0 0 26px 0;
+  }
+  .step::before{
+    content:""; position:absolute; left:27px; top:8px; bottom:-8px;
+    width:2px; background:var(--line);
+  }
+  .step:last-child::before{display:none}
+  .step-num{
+    font-family:var(--display); font-weight:900; font-size:22px; line-height:1;
+    color:var(--plan); z-index:1;
+    width:56px; height:56px; border-radius:50%;
+    background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-body{
+    padding:18px 20px 16px; background:var(--panel);
+    border:1px solid var(--line); border-radius:12px; min-width:0;
+  }
+  .step-title{
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    letter-spacing:.01em; font-size:19px; margin:0 0 8px;
+  }
+  .step-body > p{margin:0; color:var(--ink-dim); font-size:15.5px; line-height:1.55}
+  .step-body p b{color:var(--ink); font-weight:600}
+
+  /* détails d'étape : puces + chips */
+  .step-details{
+    list-style:none; margin:14px 0 0; padding:12px 0 0;
+    border-top:1px solid var(--line-soft);
+    display:grid; gap:8px;
+  }
+  .step-details li{
+    position:relative; padding-left:18px;
+    font-size:14.5px; color:var(--ink-dim); line-height:1.5;
+  }
+  .step-details li::before{
+    content:""; position:absolute; left:2px; top:9px;
+    width:6px; height:6px; border-radius:2px; background:var(--plan); opacity:.7;
+  }
+  .step-details b{color:var(--ink); font-weight:600}
+  .mini-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px}
+  .mini-chip{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.05em;
+    color:var(--plan); text-transform:uppercase;
+    border:1px solid color-mix(in srgb, var(--plan) 45%, transparent);
+    background:color-mix(in srgb, var(--plan) 10%, transparent);
+    border-radius:999px; padding:4px 11px;
+  }
+
+  /* ---------- CITATIONS ---------- */
+  .quotes{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  blockquote.q{
+    margin:0; background:var(--panel); border:1px solid var(--line);
+    border-left:3px solid var(--cite); border-radius:10px; padding:24px 26px;
+    font-size:16.5px; line-height:1.55; color:var(--ink); position:relative;
+  }
+  blockquote.q.big{
+    grid-column:1 / -1;
+    font-family:var(--display); font-weight:600;
+    font-size:clamp(19px,3.2vw,26px); line-height:1.35;
+    background:linear-gradient(135deg, var(--panel) 0%, color-mix(in srgb, var(--cite) 7%, var(--panel)) 100%);
+  }
+  blockquote.q::before{
+    content:"\201C"; font-family:var(--display); font-weight:900;
+    color:var(--cite); font-size:44px; line-height:0;
+    position:absolute; top:28px; left:14px; opacity:.35;
+  }
+  blockquote.q p{margin:0; padding-left:22px}
+
+  /* ---------- À RETENIR ---------- */
+  .keeps{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .keep{
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:16px 18px;
+  }
+  .keep .mark{
+    flex:0 0 auto; width:22px; height:22px; border-radius:6px; margin-top:1px;
+    background:color-mix(in srgb, var(--keep) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--keep) 55%, transparent);
+    color:var(--keep); font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .keep p{margin:0; font-size:15px; color:var(--ink-dim); line-height:1.5}
+  .keep p b{color:var(--ink); font-weight:600}
+  /* Variante « réserve » : un ⚠ dans une pastille verte dit « validé » alors que
+     le texte dit « méfiance ». La couleur doit contredire, pas accompagner. */
+  .keep.warn .mark{
+    background:color-mix(in srgb, var(--warn) 16%, transparent);
+    border-color:color-mix(in srgb, var(--warn) 55%, transparent);
+    color:var(--warn);
+  }
+  .keep.warn{border-color:color-mix(in srgb, var(--warn) 28%, var(--line))}
+
+  /* ---------- SCHÉMAS SVG ---------- */
+  .schema{
+    margin:16px 0 0; padding:16px 18px 12px;
+    background:var(--panel-2); border:1px solid var(--line-soft);
+    border-radius:10px; overflow-x:auto;   /* un schéma large scrolle ici, pas la page */
+  }
+  .schema svg{width:100%; min-width:480px; height:auto; display:block}
+  .schema figcaption{
+    font-family:var(--mono); font-size:11.5px; line-height:1.5;
+    color:var(--ink-faint); margin-top:10px;
+  }
+
+  /* Classes de dessin : toutes les couleurs des schémas passent par ici.
+     Aucun fill=/stroke= littéral dans le balisage SVG — c'est ce qui rend
+     la palette impossible à contourner et la règle vérifiable. */
+  .schema .s-grid{stroke:var(--line); stroke-width:1}
+  .schema .s-axis{stroke:var(--ink-faint); stroke-width:2}
+  .schema .s-mark{fill:var(--plan)}
+  .schema .s-mark-o{fill:none; stroke:var(--plan); stroke-width:2}
+  .schema .s-label{fill:var(--ink-dim); font-family:var(--mono); font-size:11px}
+  .schema .s-strong{fill:var(--ink); font-family:var(--mono); font-size:11px; font-weight:600}
+  /* Étiquette posée SUR une forme pleine (.s-mark) : le fond sombre de la page
+     n'est plus derrière, donc .s-label y devient illisible (contraste 1.07). */
+  .schema .s-on-mark{fill:var(--bg); font-family:var(--mono); font-size:11px; font-weight:600}
+
+  footer{padding:40px 0 64px; color:var(--ink-faint); font-size:13px}
+  footer a{color:var(--ink-dim); text-decoration:none; border-bottom:1px solid var(--line)}
+  footer a:hover{color:var(--ink)}
+  footer .mono{font-family:var(--mono)}
+
+  :focus-visible{outline:2px solid var(--ink); outline-offset:3px; border-radius:4px}
+
+  @media (max-width:720px){
+    .quotes,.keeps{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .nav-brand{display:none}
+    .chips{margin-left:0}
+    .ratio-seg{font-size:9.5px; letter-spacing:.04em}
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease}
+    .reveal.in{opacity:1; transform:none}
+    .hero h1{opacity:0; transform:translateY(18px); animation:rise .7s ease .05s forwards}
+    .stat .n{opacity:0; animation:rise .5s ease .25s forwards}
+    @keyframes rise{to{opacity:1; transform:none}}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Résumé vidéo · Second brain &amp; agents</p>
+    <h1>La pourriture du second brain</h1>
+    <p class="sub">Pourquoi votre base de connaissances ment, et comment l'en empêcher</p>
+    <p class="thesis reveal">Tous les second brains se ressemblent — et partagent donc le même défaut : ils <b>pourrissent</b>. L'information y est ajoutée sans jamais être remplacée, si bien que l'agent ressort des données périmées. La cause tient en un mot : ces systèmes sont <b>append-only par défaut</b>. La solution tient en une distinction : chaque information entrante est soit un <b>événement</b> (on ajoute), soit un <b>état</b> (on remplace).</p>
+    <div class="meta-row">
+      <a class="tag" href="https://www.youtube.com/watch?v=xOFkpf9KgKg">▶ Voir la vidéo</a>
+      <span class="tag">Source : anglais</span>
+      <span class="tag">Analyse</span>
+    </div>
+    <div class="stats">
+      <div class="stat" style="--c:var(--plan)"><div class="n">3</div><div class="l">Couches de la base</div></div>
+      <div class="stat" style="--c:var(--plan)"><div class="n">2</div><div class="l">Natures d'information</div></div>
+      <div class="stat" style="--c:var(--cite)"><div class="n">8 %</div><div class="l">Sans cadre imposé</div></div>
+      <div class="stat" style="--c:var(--keep)"><div class="n">7</div><div class="l">Points d'action</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Sections du résumé">
+  <div class="nav-inner">
+    <span class="nav-brand">Résumé <span>/ 3 parties</span></span>
+    <div class="chips">
+      <a class="chip" href="#parcours">Le raisonnement</a>
+      <a class="chip" href="#citations">Citations</a>
+      <a class="chip" href="#retenir">À retenir</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="block" id="parcours" style="--c:var(--plan)">
+    <div class="wrap">
+      <p class="kicker">Du symptôme au correctif</p>
+      <h2 class="h2">Le raisonnement</h2>
+      <p class="lead">Huit étapes qui vont du constat — « votre second brain ment » — à un correctif tenant en une seule distinction.</p>
+
+      <p class="phase-lab">Le problème</p>
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <h3 class="step-title">Ce que contient un second brain</h3>
+            <p>Quelle que soit la manière de le construire — guides en ligne, dépôts prêts à l'emploi comme <b>Hermes</b> ou <b>Open Claw</b> — il prend toujours la même forme. C'est justement cette uniformité qui rend le défaut universel.</p>
+            <ul class="step-details">
+              <li><b>Les documents centraux</b>, toujours chargés dans le contexte : comportement, qui vous êtes, mémoires principales (<b>memory.md</b>, <b>soul.md</b>).</li>
+              <li><b>Un graphe de connaissances</b> — un wiki d'entités et de concepts façon Karpathy — que l'agent fouille quand il lui faut un détail.</li>
+              <li><b>Les paquets d'information externe</b> ramenés lors des tâches de recherche.</li>
+              <li>Les sources se comptent par dizaines : conversations, mail, agenda, transcripts d'appels clients, leads entrants, projets, bases de code.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <h3 class="step-title">La même information dite de plusieurs façons</h3>
+            <p>La structure impose une <b>duplication assumée</b> : la mémoire centrale a besoin d'une version concise, le graphe d'une version détaillée. Les deux ne s'alignent jamais à 100 %, et <b>une contradiction désoriente profondément l'agent</b>.</p>
+            <ul class="step-details">
+              <li>Même à l'intérieur du graphe, deux entités peuvent parler de la même chose différemment.</li>
+              <li>Pas besoin de contradiction pour que ça casse : il suffit qu'une information devienne fausse <b>sans que vous en ayez parlé</b> à votre second brain — un contrat renégocié, un plan de code changé.</li>
+              <li>Le système n'a alors jamais eu l'occasion de savoir que sa propre base était périmée.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <h3 class="step-title">Le mode d'échec précis</h3>
+            <p>Le pire cas, selon l'auteur : <b>ce qui est chargé au début de la conversation contredit ce que l'agent va chercher ensuite</b>. Deux issues, toutes deux mauvaises — et « on ne sait jamais laquelle l'agent va choisir ».</p>
+            <ul class="step-details">
+              <li>La <b>memory.md</b> n'a pas été mise à jour → le document récupéré est plus juste, mais la contradiction perturbe l'agent.</li>
+              <li>La <b>memory.md</b> est à jour → mais l'agent récupère un vieux document et décide de le suivre quand même.</li>
+              <li>D'où la conclusion : on ne peut pas se permettre <b>la moindre</b> information périmée, car on ne peut pas compter sur l'agent pour repérer qu'elle est mauvaise.</li>
+            </ul>
+            <figure class="schema">
+              <svg viewBox="0 0 640 210" role="img">
+                <title>Deux chemins d'information convergent vers l'agent : le contexte chargé au démarrage et le document récupéré ensuite dans le wiki, qui peuvent se contredire</title>
+                <text class="s-strong" x="95" y="20" text-anchor="middle">CONTEXTE DE DÉMARRAGE</text>
+                <rect class="s-mark-o" x="20" y="32" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="95" y="47" text-anchor="middle">règles globales</text>
+                <rect class="s-mark-o" x="20" y="60" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="95" y="75" text-anchor="middle">comportement</text>
+                <rect class="s-mark-o" x="20" y="88" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="95" y="103" text-anchor="middle">mémoires centrales</text>
+                <rect class="s-mark-o" x="20" y="116" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="95" y="131" text-anchor="middle">dépôts en cours</text>
+                <rect class="s-mark-o" x="20" y="144" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="95" y="159" text-anchor="middle">résumé des 24 h</text>
+
+                <text class="s-strong" x="545" y="20" text-anchor="middle">RÉCUPÉRÉ ENSUITE</text>
+                <rect class="s-mark-o" x="470" y="60" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="545" y="75" text-anchor="middle">index du wiki</text>
+                <rect class="s-mark-o" x="470" y="116" width="150" height="22" rx="4"></rect>
+                <text class="s-label" x="545" y="131" text-anchor="middle">entité ou concept</text>
+
+                <line class="s-grid" x1="182" y1="43" x2="182" y2="155"></line>
+                <line class="s-grid" x1="170" y1="43" x2="182" y2="43"></line>
+                <line class="s-grid" x1="170" y1="71" x2="182" y2="71"></line>
+                <line class="s-grid" x1="170" y1="99" x2="182" y2="99"></line>
+                <line class="s-grid" x1="170" y1="127" x2="182" y2="127"></line>
+                <line class="s-grid" x1="170" y1="155" x2="182" y2="155"></line>
+                <line class="s-axis" x1="182" y1="99" x2="286" y2="99"></line>
+                <line class="s-grid" x1="458" y1="71" x2="458" y2="127"></line>
+                <line class="s-grid" x1="458" y1="71" x2="470" y2="71"></line>
+                <line class="s-grid" x1="458" y1="127" x2="470" y2="127"></line>
+                <line class="s-axis" x1="458" y1="99" x2="354" y2="99"></line>
+
+                <circle class="s-mark" cx="320" cy="99" r="34"></circle>
+                <text class="s-on-mark" x="320" y="103" text-anchor="middle">agent</text>
+
+                <text class="s-strong" x="320" y="180" text-anchor="middle">contradiction</text>
+                <text class="s-label" x="320" y="198" text-anchor="middle">l'agent tranche — on ne sait pas comment</text>
+                <line class="s-grid" x1="320" y1="133" x2="320" y2="166"></line>
+              </svg>
+              <figcaption>Le contexte chargé au démarrage et le document récupéré plus tard arrivent tous deux à l'agent. Quand ils se contredisent, rien ne dit lequel l'emporte.</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <h3 class="step-title">L'exemple chiffré</h3>
+            <p>Un second brain fictif, mais bâti sur des problèmes réellement rencontrés. Dana dirige l'agence d'automatisation <b>Northpath</b> ; le forfait mensuel de son client <b>Northwind</b> a évolué trois fois.</p>
+            <ul class="step-details">
+              <li><b>memory.md</b> (chargé au démarrage) : <b>4 000 $</b> — resté bloqué.</li>
+              <li>Un journal quotidien : <b>6 000 $</b>.</li>
+              <li>Une conversation plus tardive : <b>9 500 $</b> — la valeur réelle.</li>
+              <li>Question posée : « Combien facturons-nous Northwind Logistics ? » L'agent trouve 4 000 puis 6 000, comprend même que l'information a évolué — et <b>rate complètement la valeur la plus récente</b>.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+
+      <p class="phase-lab">Le diagnostic</p>
+      <ol class="steps" start="5">
+        <li class="step reveal">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <h3 class="step-title">Append-only par défaut</h3>
+            <p>Tout l'argument tient ici. La plupart des second brains <b>ajoutent sans jamais regarder en arrière</b> : une information nouvelle est accolée à un journal ou à une entité, sans vérifier si elle rend caduque une information déjà présente.</p>
+            <ul class="step-details">
+              <li>Ce comportement est correct <b>une partie du temps</b> — et c'est précisément ce qui le rend difficile à repérer.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+
+      <p class="phase-lab">La solution</p>
+      <ol class="steps" start="6">
+        <li class="step reveal">
+          <span class="step-num">6</span>
+          <div class="step-body">
+            <h3 class="step-title">Événement ou état</h3>
+            <p>Toute information entrante relève de l'une de deux natures, et c'est à l'agent de trancher <b>au moment de l'ingestion</b>. « C'est ce qui manque à la plupart des second brains. »</p>
+            <ul class="step-details">
+              <li><b>Événement</b> — ce qui s'est produit : un contrat livré, une décision prise sur une base de code. Ça <b>s'ajoute</b>, et ça ne périme jamais : c'est un enregistrement daté.</li>
+              <li><b>État</b> — ce qui est vrai maintenant : un tarif, une feuille de route. Ça doit <b>remplacer</b> ce qui devient périmé ailleurs dans la base.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">7</span>
+          <div class="step-body">
+            <h3 class="step-title">La mise en œuvre</h3>
+            <p>L'auteur a empaqueté son propre processus dans un <b>skill Claude Code</b> — <b>/second-brain-audit</b>, dans son dépôt public de skills, deux commandes pour l'installer.</p>
+            <ul class="step-details">
+              <li>Il fait deux choses : <b>auditer</b> la base existante pour corriger ce qui est déjà périmé, puis <b>installer</b> la distinction état/événement pour la suite.</li>
+              <li>Le skill <b>s'arrête avant de modifier quoi que ce soit</b> — délibérément. « Je ne veux pas que ça efface des choses qui n'auraient pas dû l'être. »</li>
+              <li>⚠ À utiliser comme point de départ, en <b>guidant</b> ce qui change : c'est à vous de valider ce qui est réellement périmé.</li>
+              <li>Le résultat converti sépare, dans chaque fiche, un bloc <b>state</b> et un bloc <b>log</b>, tout étant <b>horodaté</b> pour que l'agent distingue un fait ancien d'un état courant.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">state</span><span class="mini-chip">log</span><span class="mini-chip">horodatage</span>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <p class="phase-lab">La preuve</p>
+      <ol class="steps" start="8">
+        <li class="step reveal">
+          <span class="step-num">8</span>
+          <div class="step-body">
+            <h3 class="step-title">Pourquoi un cadre plutôt qu'une consigne</h3>
+            <p>Sa première tentative était une simple consigne : « date chaque information qui entre, et sers-toi de ces dates pour repérer ce qui est périmé ». Elle a échoué.</p>
+            <ul class="step-details">
+              <li>L'agent s'y conformait <b>8 % du temps</b> — « sur un jeu de test unique », précise-t-il.</li>
+              <li>La leçon : une consigne de haut niveau (« assure-toi que rien ne périme ») ne produit rien. Ce qui marche, c'est <b>un processus imposé</b>, refait à chaque entrée.</li>
+              <li>Avantage secondaire : le cadre tient même avec un modèle moins puissant, y compris une IA locale.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="citations" style="--c:var(--cite)">
+    <div class="wrap">
+      <p class="kicker">Dans le texte (traduit)</p>
+      <h2 class="h2">Citations</h2>
+      <p class="lead">Les phrases qui portent l'argument.</p>
+      <div class="quotes">
+        <blockquote class="q big reveal"><p>Les cerveaux d'IA se dégradent exactement comme les cerveaux humains.</p></blockquote>
+        <blockquote class="q reveal"><p>On ne sait jamais ce que l'agent va choisir — c'est pourquoi on ne peut pas se permettre la moindre information périmée ou contradictoire.</p></blockquote>
+        <blockquote class="q reveal"><p>Votre second brain est probablement en mode ajout-seulement par défaut.</p></blockquote>
+        <blockquote class="q reveal"><p>Seulement 8 % du temps il a réellement respecté la convention ou identifié une information périmée.</p></blockquote>
+        <blockquote class="q reveal"><p>Toute la beauté d'un cadre, c'est que c'est un processus qu'on impose à l'agent, au lieu de lui dire vaguement de faire attention.</p></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="retenir" style="--c:var(--keep)">
+    <div class="wrap">
+      <p class="kicker">Ce qu'on garde</p>
+      <h2 class="h2">À retenir</h2>
+      <p class="lead">Ce qui survit une fois la vidéo oubliée.</p>
+      <ul class="keeps">
+        <li class="keep reveal"><span class="mark">✓</span><p><b>La duplication est inévitable, la contradiction ne l'est pas.</b> C'est le désalignement qu'il faut traiter, pas la coexistence des deux représentations.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Classer avant d'ingérer</b> : événement (on ajoute, jamais périmé) ou état (on remplace ce qui devient faux). C'est toute la solution.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Horodater les événements</b> pour que l'agent distingue un fait ancien d'un état courant.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Un cadre bat une consigne</b> : un processus imposé à chaque entrée fonctionne, même avec un modèle moins puissant.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Garder l'humain dans la boucle sur un audit</b> : un outil qui nettoie une base de connaissances doit s'arrêter avant d'effacer, pas après.</p></li>
+        <li class="keep warn reveal"><span class="mark">⚠</span><p><b>Les chiffres viennent de l'auteur seul</b> : les 8 % proviennent « d'un jeu de test unique », et il n'utilise son système que depuis quelques semaines.</p></li>
+        <li class="keep warn reveal"><span class="mark">⚠</span><p><b>La vidéo contient un segment sponsorisé</b> (Granola, avec offre promotionnelle) inséré au milieu de l'exposé, sans rapport avec la démonstration.</p></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Résumé généré à partir du transcript · <a href="https://www.youtube.com/watch?v=xOFkpf9KgKg">Your AI Second Brain Is Slowly Rotting (Here's How to Fix It)</a></p>
+    <p class="mono">transcript-yt · skill resume-html</p>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll (respecte prefers-reduced-motion via la CSS)
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Scrollspy : surligne le chip de la section visible
+  const chips = [...document.querySelectorAll('.chip')];
+  const byId = Object.fromEntries(chips.map(c => [c.getAttribute('href').slice(1), c]));
+  const spy = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) {
+      chips.forEach(c => c.classList.remove('active'));
+      byId[e.target.id]?.classList.add('active');
+    }
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('main section.block').forEach(s => spy.observe(s));
+</script>
+</body>
+</html>

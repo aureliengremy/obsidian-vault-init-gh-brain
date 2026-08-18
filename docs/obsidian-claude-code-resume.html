@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How I Run My Whole Life From Obsidian And Claude Code — Résumé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d10;
+    --panel:#14161b;
+    --panel-2:#181b21;
+    --line:#2a2e37;
+    --line-soft:#21242c;
+    --ink:#e9eaee;
+    --ink-dim:#9398a3;
+    --ink-faint:#5d626d;
+
+    --plan:#ef6a3d;   /* Le parcours — braise */
+    --cite:#4fb8cc;   /* Citations — froid, cristallin */
+    --keep:#74b69c;   /* À retenir — vert, ancré */
+    --warn:#d8a24a;   /* Réserve dans « à retenir » — ambre, pas vert */
+
+    --display:'Archivo', system-ui, sans-serif;
+    --body:'Inter', system-ui, sans-serif;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:96px}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--body); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(239,106,61,.3)}
+  a{color:inherit}
+
+  .wrap{max-width:960px; margin:0 auto; padding:0 24px}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:80px 0 44px; border-bottom:1px solid var(--line); position:relative; overflow:hidden}
+  .hero::after{ /* halo braise discret */
+    content:""; position:absolute; right:-180px; top:-140px; width:520px; height:520px;
+    background:radial-gradient(circle, color-mix(in srgb, var(--plan) 14%, transparent) 0%, transparent 62%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--ink-faint); margin:0 0 22px;
+  }
+  .hero h1{
+    font-family:var(--display); font-weight:900; text-transform:uppercase;
+    letter-spacing:-.02em; line-height:.92;
+    font-size:clamp(46px, 10vw, 104px); margin:0; text-wrap:balance;
+  }
+  .hero .sub{
+    font-family:var(--display); font-weight:600; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--ink-dim);
+    font-size:clamp(14px, 2.6vw, 21px); margin:16px 0 0;
+  }
+  .thesis{
+    margin:30px 0 0; max-width:640px; font-size:clamp(17px,2.4vw,20px);
+    color:var(--ink-dim); line-height:1.55;
+  }
+  .thesis b{color:var(--ink); font-weight:600}
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:28px;
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+  }
+  .meta-row .tag{
+    border:1px solid var(--line); border-radius:6px; padding:5px 10px;
+    text-transform:uppercase; letter-spacing:.08em; text-decoration:none;
+  }
+  .meta-row a.tag:hover{color:var(--ink); border-color:var(--ink-faint)}
+
+  /* stats — tuiles chiffrées du hero */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:34px;
+  }
+  .stat{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:16px 18px 14px;
+  }
+  .stat .n{
+    font-family:var(--display); font-weight:900; font-size:clamp(26px,4vw,38px);
+    line-height:1; color:var(--c, var(--ink)); font-variant-numeric:tabular-nums;
+  }
+  .stat .l{
+    font-family:var(--mono); font-size:11px; text-transform:uppercase;
+    letter-spacing:.12em; color:var(--ink-faint); margin-top:8px;
+  }
+
+  /* ---------- STICKY NAV ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(12,13,16,.82); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px;
+    padding:12px 24px; max-width:960px; margin:0 auto;
+  }
+  .nav-brand{
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    letter-spacing:.02em; font-size:13px; color:var(--ink); white-space:nowrap;
+  }
+  .nav-brand span{color:var(--ink-faint); font-weight:600}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-left:auto}
+  .chip{
+    font-family:var(--mono); font-size:12px; font-weight:500;
+    color:var(--ink-dim); text-decoration:none;
+    border:1px solid var(--line); border-radius:6px;
+    padding:5px 10px; transition:.18s; white-space:nowrap;
+  }
+  .chip:hover{color:var(--ink); border-color:var(--ink-faint)}
+  .chip.active{color:var(--bg); background:var(--ink); border-color:var(--ink)}
+
+  /* ---------- SECTIONS ---------- */
+  section.block{padding:56px 0; border-bottom:1px solid var(--line-soft)}
+  .kicker{
+    font-family:var(--mono); font-size:12px; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--c,var(--ink-faint)); margin:0 0 6px;
+  }
+  .h2{
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    letter-spacing:-.01em; font-size:clamp(26px,5vw,40px); margin:0 0 4px; line-height:1;
+  }
+  .lead{color:var(--ink-dim); margin:10px 0 32px; max-width:660px}
+
+  /* ---------- BARRE DE RÉPARTITION (poids des phases) ---------- */
+  .ratio{margin:0 0 40px}
+  .ratio-track{
+    display:flex; height:34px; border-radius:8px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .ratio-seg{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--bg); font-weight:700; white-space:nowrap; overflow:hidden;
+    background:var(--c); min-width:0;
+  }
+  .ratio-seg.dimmed{background:color-mix(in srgb, var(--c) 34%, var(--panel)); color:var(--ink-dim)}
+  .ratio-caption{
+    display:flex; justify-content:space-between; gap:12px; margin-top:8px;
+    font-family:var(--mono); font-size:11px; color:var(--ink-faint);
+    text-transform:uppercase; letter-spacing:.1em;
+  }
+
+  /* ---------- TIMELINE (le plan) ---------- */
+  .phase-lab{
+    display:flex; align-items:center; gap:12px; margin:30px 0 16px;
+    font-family:var(--mono); font-size:11px; text-transform:uppercase;
+    letter-spacing:.16em; color:var(--ink-faint);
+  }
+  .phase-lab::after{content:""; flex:1; height:1px; background:var(--line-soft)}
+  .phase-lab:first-of-type{margin-top:0}
+  .phase-lab .pct{color:var(--plan)}
+
+  .steps{list-style:none; margin:0; padding:0}
+  .step{
+    position:relative; display:grid; grid-template-columns:56px 1fr; gap:20px;
+    padding:0 0 26px 0;
+  }
+  .step::before{
+    content:""; position:absolute; left:27px; top:8px; bottom:-8px;
+    width:2px; background:var(--line);
+  }
+  .step:last-child::before{display:none}
+  .step-num{
+    font-family:var(--display); font-weight:900; font-size:22px; line-height:1;
+    color:var(--plan); z-index:1;
+    width:56px; height:56px; border-radius:50%;
+    background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-body{
+    padding:18px 20px 16px; background:var(--panel);
+    border:1px solid var(--line); border-radius:12px; min-width:0;
+  }
+  .step-title{
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    letter-spacing:.01em; font-size:19px; margin:0 0 8px;
+  }
+  .step-body > p{margin:0; color:var(--ink-dim); font-size:15.5px; line-height:1.55}
+  .step-body p b{color:var(--ink); font-weight:600}
+
+  /* détails d'étape : puces + chips */
+  .step-details{
+    list-style:none; margin:14px 0 0; padding:12px 0 0;
+    border-top:1px solid var(--line-soft);
+    display:grid; gap:8px;
+  }
+  .step-details li{
+    position:relative; padding-left:18px;
+    font-size:14.5px; color:var(--ink-dim); line-height:1.5;
+  }
+  .step-details li::before{
+    content:""; position:absolute; left:2px; top:9px;
+    width:6px; height:6px; border-radius:2px; background:var(--plan); opacity:.7;
+  }
+  .step-details b{color:var(--ink); font-weight:600}
+  .mini-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px}
+  .mini-chip{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.05em;
+    color:var(--plan); text-transform:uppercase;
+    border:1px solid color-mix(in srgb, var(--plan) 45%, transparent);
+    background:color-mix(in srgb, var(--plan) 10%, transparent);
+    border-radius:999px; padding:4px 11px;
+  }
+
+  /* ---------- CITATIONS ---------- */
+  .quotes{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  blockquote.q{
+    margin:0; background:var(--panel); border:1px solid var(--line);
+    border-left:3px solid var(--cite); border-radius:10px; padding:24px 26px;
+    font-size:16.5px; line-height:1.55; color:var(--ink); position:relative;
+  }
+  blockquote.q.big{
+    grid-column:1 / -1;
+    font-family:var(--display); font-weight:600;
+    font-size:clamp(19px,3.2vw,26px); line-height:1.35;
+    background:linear-gradient(135deg, var(--panel) 0%, color-mix(in srgb, var(--cite) 7%, var(--panel)) 100%);
+  }
+  blockquote.q::before{
+    content:"\201C"; font-family:var(--display); font-weight:900;
+    color:var(--cite); font-size:44px; line-height:0;
+    position:absolute; top:28px; left:14px; opacity:.35;
+  }
+  blockquote.q p{margin:0; padding-left:22px}
+
+  /* ---------- À RETENIR ---------- */
+  .keeps{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .keep{
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:16px 18px;
+  }
+  .keep .mark{
+    flex:0 0 auto; width:22px; height:22px; border-radius:6px; margin-top:1px;
+    background:color-mix(in srgb, var(--keep) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--keep) 55%, transparent);
+    color:var(--keep); font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .keep p{margin:0; font-size:15px; color:var(--ink-dim); line-height:1.5}
+  .keep p b{color:var(--ink); font-weight:600}
+  /* Variante « réserve » : un ⚠ dans une pastille verte dit « validé » alors que
+     le texte dit « méfiance ». La couleur doit contredire, pas accompagner. */
+  .keep.warn .mark{
+    background:color-mix(in srgb, var(--warn) 16%, transparent);
+    border-color:color-mix(in srgb, var(--warn) 55%, transparent);
+    color:var(--warn);
+  }
+  .keep.warn{border-color:color-mix(in srgb, var(--warn) 28%, var(--line))}
+
+  /* ---------- SCHÉMAS SVG ---------- */
+  .schema{
+    margin:16px 0 0; padding:16px 18px 12px;
+    background:var(--panel-2); border:1px solid var(--line-soft);
+    border-radius:10px; overflow-x:auto;   /* un schéma large scrolle ici, pas la page */
+  }
+  .schema svg{width:100%; min-width:480px; height:auto; display:block}
+  .schema figcaption{
+    font-family:var(--mono); font-size:11.5px; line-height:1.5;
+    color:var(--ink-faint); margin-top:10px;
+  }
+
+  /* Classes de dessin : toutes les couleurs des schémas passent par ici.
+     Aucun fill=/stroke= littéral dans le balisage SVG — c'est ce qui rend
+     la palette impossible à contourner et la règle vérifiable. */
+  .schema .s-grid{stroke:var(--line); stroke-width:1}
+  .schema .s-axis{stroke:var(--ink-faint); stroke-width:2}
+  .schema .s-mark{fill:var(--plan)}
+  .schema .s-mark-o{fill:none; stroke:var(--plan); stroke-width:2}
+  .schema .s-label{fill:var(--ink-dim); font-family:var(--mono); font-size:11px}
+  .schema .s-strong{fill:var(--ink); font-family:var(--mono); font-size:11px; font-weight:600}
+  /* Étiquette posée SUR une forme pleine (.s-mark) : le fond sombre de la page
+     n'est plus derrière, donc .s-label y devient illisible (contraste 1.07). */
+  .schema .s-on-mark{fill:var(--bg); font-family:var(--mono); font-size:11px; font-weight:600}
+
+  footer{padding:40px 0 64px; color:var(--ink-faint); font-size:13px}
+  footer a{color:var(--ink-dim); text-decoration:none; border-bottom:1px solid var(--line)}
+  footer a:hover{color:var(--ink)}
+  footer .mono{font-family:var(--mono)}
+
+  :focus-visible{outline:2px solid var(--ink); outline-offset:3px; border-radius:4px}
+
+  @media (max-width:720px){
+    .quotes,.keeps{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .nav-brand{display:none}
+    .chips{margin-left:0}
+    .ratio-seg{font-size:9.5px; letter-spacing:.04em}
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease}
+    .reveal.in{opacity:1; transform:none}
+    .hero h1{opacity:0; transform:translateY(18px); animation:rise .7s ease .05s forwards}
+    .stat .n{opacity:0; animation:rise .5s ease .25s forwards}
+    @keyframes rise{to{opacity:1; transform:none}}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Résumé vidéo · Second brain agentique</p>
+    <h1>Un dossier qui se souvient</h1>
+    <p class="sub">Obsidian et Claude Code sur un seul dossier de fichiers texte</p>
+    <p class="thesis reveal">Tout tient dans <b>un dossier de fichiers texte</b>, ouvert avec Obsidian et pointé par un agent. Trois composants, pas plus. L'objectif n'était pas de s'organiser mais d'<b>arrêter de réexpliquer sa vie à une IA à chaque ouverture</b>. Le cœur technique tient en deux pannes distinctes qui appellent deux réponses distinctes : l'agent ne vous connaît pas, et il ne peut pas tout lire.</p>
+    <div class="meta-row">
+      <a class="tag" href="https://www.youtube.com/watch?v=Ws7lekerTrA">▶ Voir la vidéo</a>
+      <span class="tag">Anglais · auto-généré</span>
+      <span class="tag">Workflow outillé</span>
+    </div>
+    <div class="stats">
+      <div class="stat" style="--c:var(--plan)"><div class="n">3</div><div class="l">Composants</div></div>
+      <div class="stat" style="--c:var(--plan)"><div class="n">2</div><div class="l">Problèmes distincts</div></div>
+      <div class="stat" style="--c:var(--cite)"><div class="n">6</div><div class="l">Citations clés</div></div>
+      <div class="stat" style="--c:var(--keep)"><div class="n">11</div><div class="l">Points à retenir</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Sections du résumé">
+  <div class="nav-inner">
+    <span class="nav-brand">Résumé <span>/ 3 parties</span></span>
+    <div class="chips">
+      <a class="chip" href="#parcours">Le système</a>
+      <a class="chip" href="#citations">Citations</a>
+      <a class="chip" href="#retenir">À retenir</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- LE SYSTÈME -->
+  <section class="block" id="parcours" style="--c:var(--plan)">
+    <div class="wrap">
+      <p class="kicker">Comment ça marche</p>
+      <h2 class="h2">Le système</h2>
+      <p class="lead">Le découpage suit celui de l'auteur : d'abord le socle, puis les deux pannes qu'il isole explicitement et leurs réponses, puis ce qui tourne sans lui — et enfin l'état réel de son installation après un an.</p>
+
+      <p class="phase-lab">Le socle</p>
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <h3 class="step-title">Trois composants, pas plus</h3>
+            <p>Un dossier, <b>un fichier que l'agent lit avant de toucher à quoi que ce soit</b>, et Claude Code — ou n'importe quel agent — pointé sur ce dossier. C'est toute l'architecture.</p>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <h3 class="step-title">Le dossier : du texte, et rien d'autre</h3>
+            <p>Ce sont des fichiers texte sur son disque. <b>Obsidian n'est qu'« une jolie fenêtre sur ce dossier »</b> : supprimé, tous les fichiers restent et s'ouvrent avec n'importe quoi.</p>
+            <ul class="step-details">
+              <li>L'enjeu est plus important qu'il n'y paraît : <b>rien de ce qu'on construit n'est prisonnier</b> — ni d'une application, ni d'une IA, ni du cloud de qui que ce soit.</li>
+              <li>Chaque note porte quelques champs en tête : <b>le type de note, son état, la date</b>. Ce sont eux qui feront avancer les choses toutes seules plus tard.</li>
+              <li>Les notes se lient entre elles par double crochet, avec un graphe local pour visualiser les relations.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">Fichiers texte</span><span class="mini-chip">Double crochet</span><span class="mini-chip">Graphe local</span>
+            </div>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <h3 class="step-title">Brancher l'agent</h3>
+            <p>Installer l'outil, choisir comme répertoire de travail <b>le dossier du vault</b>. « Aucun téléversement, aucun import, aucun compte à connecter. »</p>
+            <ul class="step-details">
+              <li>Et parce que tout est du texte brut, <b>on peut changer d'IA</b> : Claude Code aujourd'hui, Codex demain. C'est le fondement de l'argument d'indépendance.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">Claude Code</span><span class="mini-chip">Codex</span>
+            </div>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <h3 class="step-title">Ce qu'une fenêtre de chat ne permet pas</h3>
+            <p>Sa démonstration : demander une analyse des notes quotidiennes pour dégager <b>les schémas récurrents de la semaine</b> et les actions à plus fort levier.</p>
+            <ul class="step-details">
+              <li>L'agent lit en direct l'ensemble des notes quotidiennes <b>et</b> des revues hebdomadaires, construit un tableau des scores par domaine de vie, et produit un rapport HTML consultable.</li>
+              <li>L'analyse est pertinente « parce qu'elle repose uniquement sur les notes que j'écris ».</li>
+              <li>Il pose lui-même la limite : « ce n'est qu'un avis, un second regard, à prendre ou à laisser ». La valeur est dans la <b>vue d'ensemble sur une longue période</b>.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+
+      <p class="phase-lab">Deux problèmes <span class="pct">— deux réponses différentes</span></p>
+      <ol class="steps" start="5">
+        <li class="step reveal">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <h3 class="step-title">Les deux pannes, isolées</h3>
+            <p>C'est la colonne vertébrale de la vidéo, et l'auteur insiste sur la distinction : <b>ce sont deux problèmes différents, et ils appellent deux réponses différentes</b>.</p>
+            <ul class="step-details">
+              <li><b>L'agent ne vous connaît pas.</b> À chaque nouvelle session il oublie qui vous êtes, sur quoi vous travaillez, vos préférences, vos règles.</li>
+              <li><b>L'agent ne peut pas tout lire.</b> Il ne lit qu'environ 300 fichiers d'un coup. Pire, une demande vague le fait <b>parcourir tout le vault</b> et gaspiller son contexte en recherche.</li>
+              <li>⚠ Le seuil qu'il donne : <code>/context</code> le montre à <b>136 k tokens</b> pendant la démonstration, et au-delà d'environ <b>300 k tokens</b> commence selon lui une zone où « l'agent prend des raccourcis et fait de mauvais choix ». Ce sont ses chiffres, sans référence.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">/context</span><span class="mini-chip">136 k</span><span class="mini-chip">~300 k</span>
+            </div>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">6</span>
+          <div class="step-body">
+            <h3 class="step-title">Réponse 1 — un seul fichier</h3>
+            <p>Un <b>CLAUDE.md</b> chargé automatiquement à chaque démarrage de session. C'est le fichier que l'agent lit avant toute action.</p>
+            <ul class="step-details">
+              <li><b>L'astuce de portabilité</b> : ce fichier demande de lire un <b>AGENTS.md</b>, ce qui rend le vault indépendant du modèle et du fournisseur. « Aujourd'hui Claude, mais qui sait, dans un mois ce sera Codex. »</li>
+              <li><b>Ce qu'il y met</b> : la carte de ses vaults ; comment travailler avec lui — « je suis physicien, j'aime raisonner à partir des principes premiers et remettre en question les bonnes pratiques » ; son profil de voix ; ce qu'il faut lire avant de rédiger ; des <b>règles dures</b>, dont ne jamais exposer d'identifiants ; ses skills.</li>
+              <li>Et la <b>structure du vault</b>, « incroyablement importante pour que l'agent sache où il est au lieu de fouiller à l'aveugle ».</li>
+              <li><b>La dernière section est la plus importante</b> : à chaque erreur de l'agent, il y ajoute une ligne pour qu'il déclenche son skill rétrospectif et mette à jour les règles — « pour qu'il ne refasse jamais cette erreur ».</li>
+              <li>Comme c'est un fichier texte : lisible, modifiable, versionnable, et transportable vers une autre IA l'an prochain.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">CLAUDE.md</span><span class="mini-chip">AGENTS.md</span>
+            </div>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">7</span>
+          <div class="step-body">
+            <h3 class="step-title">Réponse 2 — les tableaux de bord</h3>
+            <p>Un type de note appelé <b>dashboard</b>, regroupé dans un seul dossier, qui agrège l'information par sujet. C'est le vrai verrou technique du système.</p>
+            <ul class="step-details">
+              <li>Ils reposent sur les <b>bases Obsidian</b> — des tableaux qu'on embarque dans n'importe quel fichier. Problème : <b>l'agent ne sait pas les lire nativement</b>.</li>
+              <li>La solution : <b>Obsidian CLI</b>, qui permet d'exécuter depuis un terminal n'importe quelle commande de la palette. Il démontre la liste des vues d'une base, puis une requête qui renvoie les résultats <b>dans un format structuré</b> — celui que l'agent préfère.</li>
+              <li><b>Le déblocage réel</b> : on ne lit plus les fichiers un par un — qui peuvent être très longs — on lit <b>une seule vue de tableau</b>. C'est ce qui rend la solution économe en contexte.</li>
+              <li><b>L'agent a d'abord échoué</b>, ne sachant pas se servir de l'outil. Sa réponse : lui fournir les skills Obsidian de Kepano, après quoi il exécute la requête tout seul.</li>
+              <li>Généralisable : un tableau de bord par projet, par idée, « littéralement n'importe quoi ». Plus des commandes pour suivre les liens sortants d'une note ou récupérer toutes les notes portant une propriété donnée — <b>sans tout lire</b>.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">Bases Obsidian</span><span class="mini-chip">Obsidian CLI</span><span class="mini-chip">Skills Kepano</span>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <p class="phase-lab">Ce qui tourne sans lui</p>
+      <ol class="steps" start="8">
+        <li class="step reveal">
+          <span class="step-num">8</span>
+          <div class="step-body">
+            <h3 class="step-title">Les routines, pendant le sommeil</h3>
+            <p>« C'est la partie que j'utilise le plus, et <b>elle se passe pendant que je dors</b>. » Une routine déclenchée à 6 h du matin, tous les jours.</p>
+            <ul class="step-details">
+              <li>L'agent ouvre son tableau de bord d'alignement, fait la revue quotidienne et la planification du jour, puis lui pose des questions sur son sommeil, son ressenti, son énergie, ses objectifs et le prochain pas à faire.</li>
+              <li>Les réponses sont écrites dans sa note du jour. « Je n'ai rien lancé, je n'étais même pas devant l'ordinateur — je me lève et tout est prêt. »</li>
+              <li><b>Le revers, qu'il énonce lui-même</b> : l'ordinateur doit rester allumé et connecté. Sa parade : <code>caffeinate</code> sur son Mac pour qu'il ne se mette jamais en veille.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">6 h</span><span class="mini-chip">caffeinate</span>
+            </div>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">9</span>
+          <div class="step-body">
+            <h3 class="step-title">Le tableau de bord quotidien</h3>
+            <p>Toutes les entrées journalières suivent un modèle — humeur, énergie — et alimentent le <b>tableau de bord d'alignement</b> : scores de sommeil, énergie, régularité à la salle.</p>
+            <ul class="step-details">
+              <li><b>Plus d'un an de données</b> accumulées, ce qui permet d'observer les tendances sur une année entière plutôt que sur une semaine.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">10</span>
+          <div class="step-body">
+            <h3 class="step-title">Les sessions et leurs plans</h3>
+            <p>Un autre type de note : <b>le contexte donné au modèle pour travailler sur une tâche</b>, plutôt qu'un historique de conversation qu'on perd.</p>
+            <ul class="step-details">
+              <li>Une session porte un <b>statut</b> (proposé, actif), un <b>livrable</b>, des <b>contraintes</b> et une <b>définition du terminé</b>.</li>
+              <li>On passe le statut à actif et on demande à l'agent de charger le contexte de cette note. Une session peut <b>s'étaler sur plusieurs jours sans perdre le contexte</b>.</li>
+              <li>Chaque session a son <b>plan</b> : les étapes pour atteindre l'objectif. Sans spécification, « le résultat sera générique », il faudra recommencer, et la qualité restera moyenne.</li>
+            </ul>
+            <div class="mini-chips">
+              <span class="mini-chip">Statut</span><span class="mini-chip">Livrable</span><span class="mini-chip">Contraintes</span><span class="mini-chip">Definition of done</span>
+            </div>
+          </div>
+        </li>
+        <li class="step reveal">
+          <span class="step-num">11</span>
+          <div class="step-body">
+            <h3 class="step-title">Le système rétrospectif — la boucle</h3>
+            <p>Un skill lancé <b>sur chaque session</b> : analyser la session et extraire les enseignements à réinjecter dans le système. C'est ce que l'auteur désigne comme <b>la différence entre utiliser une IA et en entraîner une</b>.</p>
+            <ul class="step-details">
+              <li><b>Étape 1 — extraire les signaux</b> : les corrections, le travail effectué, les étapes manquantes, ce qui a bien marché.</li>
+              <li><b>Étape 2 — cartographier</b> : déterminer où chaque correction doit atterrir, dans quelle partie du vault et dans quel skill.</li>
+              <li><b>Le critère de routage</b> : si l'enseignement doit être partagé sur l'ensemble du travail, il va dans la <b>mémoire</b> ; sinon, il va dans les <b>skills</b>.</li>
+              <li><b>L'humain garde la main</b> : l'agent propose des diffs, l'auteur choisit ce qu'il applique.</li>
+              <li>Le renversement qu'il souligne : ce n'est plus vous qui vous adaptez à l'outil, c'est l'outil qu'on éduque à votre façon de travailler.</li>
+            </ul>
+
+            <figure class="schema">
+              <svg viewBox="0 0 700 222" role="img">
+                <title>La boucle rétrospective : de la session aux corrections, routées vers la mémoire ou les skills, puis rechargées à la session suivante</title>
+
+                <!-- Session -->
+                <rect class="s-mark-o" x="16" y="76" width="90" height="38" rx="6"></rect>
+                <text class="s-strong" x="61" y="99" text-anchor="middle">Session</text>
+
+                <!-- Session -> Rétrospectif -->
+                <line class="s-axis" x1="106" y1="95" x2="128" y2="95"></line>
+                <path class="s-mark" d="M 136 95 L 128 91 L 128 99 Z"></path>
+
+                <!-- Rétrospectif -->
+                <rect class="s-mark-o" x="136" y="76" width="136" height="38" rx="6"></rect>
+                <text class="s-strong" x="204" y="99" text-anchor="middle">Rétrospectif</text>
+                <text class="s-label" x="204" y="66" text-anchor="middle">corrections · manques · réussites</text>
+
+                <!-- Rétrospectif -> Validation -->
+                <line class="s-axis" x1="272" y1="95" x2="294" y2="95"></line>
+                <path class="s-mark" d="M 302 95 L 294 91 L 294 99 Z"></path>
+
+                <!-- Validation humaine -->
+                <rect class="s-mark-o" x="302" y="76" width="126" height="38" rx="6"></rect>
+                <text class="s-strong" x="365" y="99" text-anchor="middle">Vous validez</text>
+                <text class="s-label" x="365" y="130" text-anchor="middle">diffs proposés</text>
+
+                <!-- Embranchement -->
+                <line class="s-axis" x1="428" y1="95" x2="450" y2="95"></line>
+                <line class="s-axis" x1="450" y1="45" x2="450" y2="145"></line>
+                <line class="s-axis" x1="450" y1="45" x2="462" y2="45"></line>
+                <path class="s-mark" d="M 470 45 L 462 41 L 462 49 Z"></path>
+                <line class="s-axis" x1="450" y1="145" x2="462" y2="145"></line>
+                <path class="s-mark" d="M 470 145 L 462 141 L 462 149 Z"></path>
+
+                <!-- Mémoire -->
+                <rect class="s-mark-o" x="470" y="26" width="124" height="38" rx="6"></rect>
+                <text class="s-strong" x="532" y="49" text-anchor="middle">Mémoire</text>
+                <text class="s-label" x="532" y="78" text-anchor="middle">vaut pour tout le travail</text>
+
+                <!-- Skills -->
+                <rect class="s-mark-o" x="470" y="126" width="124" height="38" rx="6"></rect>
+                <text class="s-strong" x="532" y="149" text-anchor="middle">Skills</text>
+                <text class="s-label" x="532" y="180" text-anchor="middle">spécifique à une tâche</text>
+
+                <!-- Retour vers la session suivante -->
+                <line class="s-axis" x1="594" y1="45" x2="640" y2="45" stroke-dasharray="5 4"></line>
+                <line class="s-axis" x1="594" y1="145" x2="640" y2="145" stroke-dasharray="5 4"></line>
+                <line class="s-axis" x1="640" y1="45" x2="640" y2="196" stroke-dasharray="5 4"></line>
+                <line class="s-axis" x1="640" y1="196" x2="61" y2="196" stroke-dasharray="5 4"></line>
+                <line class="s-axis" x1="61" y1="196" x2="61" y2="122" stroke-dasharray="5 4"></line>
+                <path class="s-mark" d="M 61 114 L 57 122 L 65 122 Z"></path>
+                <text class="s-label" x="350" y="211" text-anchor="middle">rechargé au démarrage de la session suivante</text>
+              </svg>
+              <figcaption>Ce qui sort d'une session ne va pas à l'étape suivante : il revient en arrière modifier ce que la session suivante chargera. Le trait plein est le trajet d'une correction, le pointillé le bouclage. Le critère de routage — partagé sur tout le travail ou spécifique à une tâche — est celui énoncé dans la vidéo.</figcaption>
+            </figure>
+
+            <div class="mini-chips">
+              <span class="mini-chip">Mémoire</span><span class="mini-chip">Skills</span><span class="mini-chip">Diffs</span>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <p class="phase-lab">Après un an</p>
+      <ol class="steps" start="12">
+        <li class="step reveal">
+          <span class="step-num">12</span>
+          <div class="step-body">
+            <h3 class="step-title">L'aveu final</h3>
+            <p>Il montre son système <b>après un an</b>, et le qualifie de désordre : des liens qui pointent vers des notes supprimées, des centaines de notes qui ne mènent à rien, des notes encore marquées « en cours » et plus touchées depuis le printemps.</p>
+            <ul class="step-details">
+              <li><b>Et il assume</b> : « ça ne m'empêche pas de livrer le travail. Le système n'a pas besoin d'être parfait, il a besoin de vous apporter de la valeur. »</li>
+              <li>C'est sans doute la partie la plus utile de la vidéo pour quiconque a déjà abandonné un système de notes par culpabilité.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- CITATIONS -->
+  <section class="block" id="citations" style="--c:var(--cite)">
+    <div class="wrap">
+      <p class="kicker">Dans le texte</p>
+      <h2 class="h2">Citations</h2>
+      <p class="lead">Les passages qui portent l'essentiel — traduits de l'anglais.</p>
+      <div class="quotes">
+        <blockquote class="q big reveal"><p>Je n'ai pas construit ça pour être organisé. Je l'ai construit pour arrêter de réexpliquer ma vie à une IA à chaque fois que je l'ouvre.</p></blockquote>
+        <blockquote class="q reveal"><p>Si je supprime Obsidian maintenant, tous ces fichiers sont encore là — rien de ce que vous construisez ici n'est prisonnier.</p></blockquote>
+        <blockquote class="q reveal"><p>Deux problèmes, et ils appellent deux réponses différentes : il ne me connaît pas, et il ne peut pas tout lire.</p></blockquote>
+        <blockquote class="q reveal"><p>On ne lit pas tous les fichiers. On lit juste cette vue de tableau.</p></blockquote>
+        <blockquote class="q reveal"><p>C'est toute la différence entre utiliser une IA et en entraîner une.</p></blockquote>
+        <blockquote class="q reveal"><p>Le système n'a pas besoin d'être parfait. Il a besoin de vous apporter de la valeur pour livrer votre travail.</p></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- À RETENIR -->
+  <section class="block" id="retenir" style="--c:var(--keep)">
+    <div class="wrap">
+      <p class="kicker">Points d'action</p>
+      <h2 class="h2">À retenir</h2>
+      <p class="lead">Ce qu'on garde — y compris ce qu'il faut regarder de près.</p>
+      <ul class="keeps">
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Le texte brut est la garantie d'indépendance.</b> Des fichiers dans un dossier survivent à l'application qui les affiche, au modèle qui les lit et au fournisseur qui l'héberge. Tout le reste en découle.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Séparer les deux problèmes est l'idée structurante.</b> « Il ne me connaît pas » et « il ne peut pas tout lire » sont deux pannes différentes ; les confondre mène à empiler du contexte au lieu de l'organiser.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Un fichier d'entrée qui en appelle un autre</b> — <code>CLAUDE.md</code> vers <code>AGENTS.md</code> — suffit à rendre l'installation portable d'un agent à l'autre. Le coût est d'une ligne.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Agréger avant d'interroger.</b> Lire une vue de tableau plutôt que mille fichiers est ce qui rend le système tenable quand le vault grossit — le verrou se résout par la structure, pas par une fenêtre de contexte plus grande.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Un agent bloqué sur un outil se débloque avec un skill</b>, pas avec un meilleur prompt. Sa démonstration le montre en direct : échec, ajout du skill, réussite.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Écrire la correction là où elle sera relue.</b> Le critère mémoire/skills — partagé partout ou spécifique à une tâche — est simple et transposable à n'importe quelle installation d'agent.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Garder la main sur ce qui est appliqué</b> : l'agent propose des diffs, l'humain tranche. Un système qui se corrige seul sans validation corrigerait aussi ce qu'il ne fallait pas.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Spécifier ou refaire.</b> Sans livrable, contraintes et définition du terminé, le résultat est générique et le travail est à recommencer.</p></li>
+        <li class="keep reveal"><span class="mark">✓</span><p><b>Un système imparfait qui sert vaut mieux qu'un système propre qu'on entretient.</b> L'aveu final — liens morts, notes orphelines, statuts périmés — désamorce la culpabilité qui fait abandonner ces installations.</p></li>
+        <li class="keep warn reveal"><span class="mark">⚠</span><p><b>Les seuils chiffrés sont les siens.</b> Environ 300 fichiers lisibles d'un coup, une zone de dégradation au-delà d'environ 300 k tokens : ce sont des observations d'usage, présentées sans référence, et elles dépendent du modèle et de la version.</p></li>
+        <li class="keep warn reveal"><span class="mark">⚠</span><p><b>La vidéo mène à un programme payant</b>, mentionné deux fois — au milieu de l'explication puis en conclusion. Le contenu technique reste utilisable tel quel sans y souscrire.</p></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Résumé généré à partir du transcript · <a href="https://www.youtube.com/watch?v=Ws7lekerTrA">How I Run My Whole Life From Obsidian And Claude Code</a></p>
+    <p class="mono">transcript-yt · skill resume-html</p>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll (respecte prefers-reduced-motion via la CSS)
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Scrollspy : surligne le chip de la section visible
+  const chips = [...document.querySelectorAll('.chip')];
+  const byId = Object.fromEntries(chips.map(c => [c.getAttribute('href').slice(1), c]));
+  const spy = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) {
+      chips.forEach(c => c.classList.remove('active'));
+      byId[e.target.id]?.classList.add('active');
+    }
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('main section.block').forEach(s => spy.observe(s));
+</script>
+</body>
+</html>
