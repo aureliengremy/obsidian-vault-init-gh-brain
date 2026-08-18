@@ -60,7 +60,7 @@ vault/
 ## Ce que contient le kit
 
 ```
-vault-init-kit/
+obsidian-vault-init-gh-brain/
 ├── init-vault.sh                    # paramétrage : questions, garde-fous, préparation
 ├── INIT-vault-gh-obsidian.md        # la recette, consommée une fois par vault
 ├── .claude/skills/new-vault/        # le mode « via Claude »
@@ -82,12 +82,19 @@ vault-init-kit/
 Trois entrées, un seul comportement. Dans tous les cas, l'agent demande votre profil,
 **présente un plan et attend votre validation** avant d'écrire quoi que ce soit.
 
-### Depuis Claude Code (le plus simple)
-
-Clonez le kit, ouvrez une session dedans et demandez la création :
+Les trois supposent le kit cloné et le terminal placé dedans :
 
 ```bash
-git clone <ce-dépôt> && cd vault-init-kit && claude
+git clone https://github.com/aureliengremy/obsidian-vault-init-gh-brain.git
+cd obsidian-vault-init-gh-brain
+```
+
+### Depuis Claude Code (le plus simple)
+
+Ouvrez une session dans le kit et demandez la création :
+
+```bash
+claude
 ```
 
 Puis : `/new-vault` — ou simplement « crée un vault ». Le skill pose les questions,
@@ -101,7 +108,9 @@ prépare le dossier, présente le plan, génère le vault et crée le dépôt pr
 
 Le script pose cinq questions — dossier parent, nom du vault, contexte `PERSO`/`PRO`,
 nom du dépôt, compte GitHub — puis lance Claude Code, qui prend le relais pour le
-profil, le plan et la génération.
+profil, le plan et la génération. En contexte `PRO`, une sixième question demande de
+confirmer que le compte est autorisé pour du contenu de travail ; un refus interrompt
+tout sans rien créer.
 
 ### En terminal, tout en flags
 
@@ -110,9 +119,11 @@ profil, le plan et la génération.
                 --contexte PRO --repo vault-pro --account mon-compte
 ```
 
-Aucune question n'est posée pour les valeurs fournies. Flags disponibles :
-`--path`, `--parent`, `--name`, `--contexte`, `--repo`, `--account`, `--no-launch`
-(prépare le dossier sans lancer Claude), `--help`.
+Aucune question n'est posée pour les valeurs fournies. Une exception : en contexte
+`PRO` lancé depuis un terminal, la confirmation du compte est demandée quand même —
+c'est le garde-fou qui évite de créer le vault pro sur le compte perso. Flags
+disponibles : `--path`, `--parent`, `--name`, `--contexte`, `--repo`, `--account`,
+`--no-launch` (prépare le dossier sans lancer Claude), `--help`.
 
 Le script vérifie les prérequis, affiche le compte GitHub authentifié (pour éviter de
 créer le vault pro sur le compte perso...), refuse un dossier non vide ou situé dans
