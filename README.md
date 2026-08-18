@@ -57,6 +57,17 @@ vault/
 └── _assets/
 ```
 
+## Ce que contient le kit
+
+```
+vault-init-kit/
+├── init-vault.sh                    # paramétrage : questions, garde-fous, préparation
+├── INIT-vault-gh-obsidian.md        # la recette, consommée une fois par vault
+├── .claude/skills/new-vault/        # le mode « via Claude »
+├── tests/test-init-vault.sh         # tests du script (bash pur)
+└── docs/                            # contexte de conception + specs et plans
+```
+
 ## Prérequis
 
 | Outil | Rôle | Obligatoire |
@@ -68,17 +79,49 @@ vault/
 
 ## Usage
 
-### Avec le script (recommandé)
+Trois entrées, un seul comportement. Dans tous les cas, l'agent demande votre profil,
+**présente un plan et attend votre validation** avant d'écrire quoi que ce soit.
+
+### Depuis Claude Code (le plus simple)
+
+Clonez le kit, ouvrez une session dedans et demandez la création :
 
 ```bash
-git clone <ce-dépôt> && cd vault-init-kit
-chmod +x init-vault.sh
-./init-vault.sh ~/vaults/vault-perso
+git clone <ce-dépôt> && cd vault-init-kit && claude
 ```
 
-Le script vérifie les prérequis, affiche le compte GitHub authentifié (pour éviter de créer le vault pro sur le compte perso...), copie l'INIT dans un dossier vide et lance Claude Code.
+Puis : `/new-vault` — ou simplement « crée un vault ». Le skill pose les questions,
+prépare le dossier, présente le plan, génère le vault et crée le dépôt privé.
 
-### À la main
+### En terminal, interactif
+
+```bash
+./init-vault.sh
+```
+
+Le script pose cinq questions — dossier parent, nom du vault, contexte `PERSO`/`PRO`,
+nom du dépôt, compte GitHub — puis lance Claude Code, qui prend le relais pour le
+profil, le plan et la génération.
+
+### En terminal, tout en flags
+
+```bash
+./init-vault.sh --path ~/vaults/vault-pro \
+                --contexte PRO --repo vault-pro --account mon-compte
+```
+
+Aucune question n'est posée pour les valeurs fournies. Flags disponibles :
+`--path`, `--parent`, `--name`, `--contexte`, `--repo`, `--account`, `--no-launch`
+(prépare le dossier sans lancer Claude), `--help`.
+
+Le script vérifie les prérequis, affiche le compte GitHub authentifié (pour éviter de
+créer le vault pro sur le compte perso...), refuse un dossier non vide ou situé dans
+le kit, puis copie l'INIT avec ses paramètres dans le dossier cible.
+
+### Sans le script
+
+L'INIT reste utilisable seul : son bloc `## Paramètres` est vide, l'agent pose alors
+toutes les questions lui-même.
 
 ```bash
 mkdir ~/vaults/vault-perso && cd ~/vaults/vault-perso
@@ -86,11 +129,11 @@ cp <chemin>/INIT-vault-gh-obsidian.md .
 claude "Lis INIT-vault-gh-obsidian.md et exécute l'initialisation, phase par phase."
 ```
 
-Dans les deux cas, Claude Code pose 3 questions (contexte `PERSO`/`PRO`, nom du dépôt, compte GitHub), génère tout, crée le dépôt privé, puis archive l'INIT. Le `CLAUDE.md` → `AGENTS.md` généré prend le relais pour toutes les sessions suivantes.
-
 ### Plusieurs vaults
 
-Le même INIT sert pour tous les vaults — c'est la phase de paramétrage qui fait la différence. Typiquement : un vault **perso** et un vault **pro**, sur deux machines, deux dépôts GitHub isolés, zéro croisement.
+Le même INIT sert pour tous les vaults — c'est le paramétrage qui fait la différence.
+Typiquement : un vault **perso** et un vault **pro**, sur deux machines, deux dépôts
+GitHub isolés, zéro croisement.
 
 ## Après l'init : la vie du vault
 
@@ -106,6 +149,10 @@ Tout le contexte de conception est dans [`docs/`](docs/) :
 - [`concept-second-brain-para.html`](docs/concept-second-brain-para.html) — la page de présentation du système : architecture des vaults, méthode PARA en détail, flux d'une note, arborescence
 - [`obsidian-claude-code-resume.md`](docs/obsidian-claude-code-resume.md) (+ [version HTML](docs/obsidian-claude-code-resume.html)) — *How I Run My Whole Life From Obsidian and Claude Code* : les deux problèmes (connaître / tout lire), le duo CLAUDE.md → AGENTS.md, les dashboards, la boucle rétrospective
 - [`rotting-second-brain-resume.md`](docs/rotting-second-brain-resume.md) (+ [version HTML](docs/rotting-second-brain-resume.html)) — *Your AI Second Brain Is Slowly Rotting* : le diagnostic append-only et la distinction état/événement
+
+> À noter : la page concept décrit un troisième vault « vie courante », synchronisé
+> et accessible sur mobile. Il est hors du périmètre de ce kit, qui produit des
+> vaults **desktop uniquement, sans sync automatique**.
 
 Méthode PARA : Tiago Forte, *Building a Second Brain*.
 
