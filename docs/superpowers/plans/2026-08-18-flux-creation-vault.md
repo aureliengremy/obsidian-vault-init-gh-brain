@@ -202,10 +202,10 @@ check "$RUN_RC" "0" "cas nominal : sortie 0"
 P="$TMP/vault-test/$INIT_NAME"
 [ -f "$P" ]; assert $? "cas nominal : INIT copié dans le vault"
 if [ -f "$P" ]; then
-  grep -Fqx "- Contexte : PRO" "$P";                      assert $? "cas nominal : contexte écrit"
-  grep -Fqx "- Dépôt GitHub : depot-test" "$P";           assert $? "cas nominal : dépôt écrit"
-  grep -Fqx "- Compte GitHub : moncompte" "$P";           assert $? "cas nominal : compte écrit"
-  grep -Fqx "- Chemin du vault : $TMP/vault-test" "$P";   assert $? "cas nominal : chemin écrit"
+  grep -Fqx -- "- Contexte : PRO" "$P";                      assert $? "cas nominal : contexte écrit"
+  grep -Fqx -- "- Dépôt GitHub : depot-test" "$P";           assert $? "cas nominal : dépôt écrit"
+  grep -Fqx -- "- Compte GitHub : moncompte" "$P";           assert $? "cas nominal : compte écrit"
+  grep -Fqx -- "- Chemin du vault : $TMP/vault-test" "$P";   assert $? "cas nominal : chemin écrit"
 fi
 rm -rf "$TMP"
 
@@ -213,7 +213,7 @@ rm -rf "$TMP"
 TMP=$(mktmp)
 run --no-launch --parent "$TMP" --name vault-perso --contexte PERSO --account moncompte
 check "$RUN_RC" "0" "repo par défaut : sortie 0"
-grep -Fqx "- Dépôt GitHub : vault-perso" "$TMP/vault-perso/$INIT_NAME" 2>/dev/null
+grep -Fqx -- "- Dépôt GitHub : vault-perso" "$TMP/vault-perso/$INIT_NAME" 2>/dev/null
 assert $? "repo par défaut : dépôt = nom du vault"
 rm -rf "$TMP"
 
@@ -479,7 +479,7 @@ LC_ALL=C awk \
   { print }
 ' "$INIT_FILE" > "$TARGET_ABS/$INIT_NAME"
 
-grep -Fqx "- Contexte : $CONTEXTE" "$TARGET_ABS/$INIT_NAME" \
+grep -Fqx -- "- Contexte : $CONTEXTE" "$TARGET_ABS/$INIT_NAME" \
   || die "Le bloc ## Paramètres n'a pas pu être rempli — l'INIT du kit a-t-il été modifié ?"
 ok "INIT copié avec ses paramètres"
 
@@ -572,9 +572,9 @@ check "$RUN_RC" "0" "interactif : sortie 0"
 P="$TMP/vault-inter/$INIT_NAME"
 [ -f "$P" ]; assert $? "interactif : vault créé"
 if [ -f "$P" ]; then
-  grep -Fqx "- Contexte : PERSO" "$P";            assert $? "interactif : « 1 » vaut PERSO"
-  grep -Fqx "- Dépôt GitHub : depot-inter" "$P";  assert $? "interactif : dépôt saisi"
-  grep -Fqx "- Compte GitHub : moncompte" "$P";   assert $? "interactif : compte saisi"
+  grep -Fqx -- "- Contexte : PERSO" "$P";            assert $? "interactif : « 1 » vaut PERSO"
+  grep -Fqx -- "- Dépôt GitHub : depot-inter" "$P";  assert $? "interactif : dépôt saisi"
+  grep -Fqx -- "- Compte GitHub : moncompte" "$P";   assert $? "interactif : compte saisi"
 fi
 rm -rf "$TMP"
 
@@ -587,7 +587,7 @@ PERSO
 moncompte
 " --no-launch
 check "$RUN_RC" "0" "interactif défaut : sortie 0"
-grep -Fqx "- Dépôt GitHub : vault-defaut" "$TMP/vault-defaut/$INIT_NAME" 2>/dev/null
+grep -Fqx -- "- Dépôt GitHub : vault-defaut" "$TMP/vault-defaut/$INIT_NAME" 2>/dev/null
 assert $? "interactif défaut : Entrée reprend le nom du vault"
 rm -rf "$TMP"
 
@@ -602,7 +602,7 @@ moncompte
 o
 " --no-launch
 check "$RUN_RC" "0" "interactif boucle : sortie 0"
-grep -Fqx "- Contexte : PRO" "$TMP/vault-boucle/$INIT_NAME" 2>/dev/null
+grep -Fqx -- "- Contexte : PRO" "$TMP/vault-boucle/$INIT_NAME" 2>/dev/null
 assert $? "interactif boucle : contexte finalement PRO"
 rm -rf "$TMP"
 
