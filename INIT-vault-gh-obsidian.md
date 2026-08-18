@@ -18,19 +18,55 @@
 
 ---
 
-## Phase 1 — Paramétrage (questions à poser à l'utilisateur)
+## Phase 1 — Paramétrage
 
-Avant de créer quoi que ce soit, poser ces questions et attendre les réponses :
+Lire d'abord le bloc `## Paramètres` en tête de ce fichier.
 
-1. **Contexte** : `PERSO` ou `PRO` ?
-2. **Nom du dépôt GitHub privé** à créer (ex. `vault-perso`, `vault-pro`) ?
-3. **Compte/organisation GitHub** cible ? → Vérifier avec `gh auth status` que le CLI est authentifié sur le bon compte **avant** de créer le dépôt. En contexte `PRO`, faire confirmer explicitement que ce compte est autorisé pour du contenu de travail.
-4. **Qui es-tu et comment travailles-tu ?** → 2-3 phrases libres : métier/contexte, façon de raisonner, préférences de collaboration avec un agent (ex. « propose avant d'exécuter », « va droit au but »). Elles alimenteront la section « L'utilisateur » de l'AGENTS.md.
+- Une clé qui porte une valeur est **acquise** : ne pas la redemander.
+- Une clé vide se demande à l'utilisateur, une question à la fois :
+  1. **Contexte** : `PERSO` ou `PRO` ?
+  2. **Nom du dépôt GitHub privé** à créer (ex. `vault-perso`, `vault-pro`) ?
+  3. **Compte ou organisation GitHub** cible ?
+  4. **Chemin du vault** : le dossier dans lequel générer (par défaut, le dossier courant).
+
+Puis, **dans tous les cas**, poser la question qui n'est jamais pré-remplie :
+
+5. **Qui es-tu et comment travailles-tu ?** → 2-3 phrases libres : métier/contexte,
+   façon de raisonner, préférences de collaboration avec un agent (ex. « propose
+   avant d'exécuter », « va droit au but »). Elles alimenteront la section
+   « L'utilisateur » de l'AGENTS.md.
+
+Vérifications avant d'aller plus loin :
+
+- `gh auth status` confirme que le CLI est authentifié sur le compte indiqué.
+- En contexte `PRO`, si le bloc `## Paramètres` était vide (donc sans passage par
+  `init-vault.sh`), faire confirmer explicitement que ce compte est autorisé pour
+  du contenu de travail.
+- **Toutes** les commandes de ce fichier s'exécutent dans le dossier indiqué par
+  « Chemin du vault » — jamais dans le dépôt du kit qui a produit ce fichier.
 
 Règles fixes, non négociables (ne pas demander) :
 - Dépôt **privé**, **isolé** : aucun remote, sous-module ou lien vers un autre vault.
 - Vault **desktop uniquement** : aucune sync automatique, aucun usage mobile.
 - Langue des notes : **français**.
+
+---
+
+## Phase 1 bis — Plan (validation obligatoire)
+
+Avant d'écrire quoi que ce soit, présenter un plan court et **attendre une
+validation explicite**. Le plan tient en une page et couvre :
+
+- l'arborescence et la liste des fichiers à créer (§2.1) ;
+- les adaptations liées au contexte : en `PRO`, l'ajout dans « Règles dures » de
+  *« Jamais de données client nominatives ni de secrets de mandat dans le vault. »* ;
+- le profil utilisateur reformulé en une phrase, pour qu'il soit corrigé s'il a été
+  mal compris ;
+- le nom du dépôt, le compte cible et le message du premier commit ;
+- l'archivage de l'INIT en fin de parcours (Phase 4).
+
+Tant que le plan n'est pas validé, **aucun fichier n'est créé**. Si l'utilisateur
+ajuste, reprendre le plan et redemander la validation.
 
 ---
 
@@ -408,6 +444,7 @@ Le remplir une première fois (vide mais structuré).
    prend le relais pour toutes les sessions futures.
 
 **Checklist de sortie** (tout doit être vrai) :
+- [ ] Plan présenté et validé avant la première écriture
 - [ ] Arborescence complète, `.gitignore` exact
 - [ ] `CLAUDE.md` pointeur + `AGENTS.md` adapté au contexte PERSO/PRO
 - [ ] 3 templates (projet avec État courant / Journal), 3 `.base`,
