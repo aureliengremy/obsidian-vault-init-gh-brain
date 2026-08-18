@@ -718,7 +718,7 @@ fi
 - [ ] **Step 7: Relancer les tests pour vérifier qu'ils passent**
 
 Run: `./tests/test-init-vault.sh`
-Expected: PASS — `43 test(s) OK`, sortie 0.
+Expected: PASS — `45 test(s) OK`, sortie 0.
 
 - [ ] **Step 8: Vérifier une session interactive réelle**
 
@@ -824,7 +824,7 @@ Run:
 ./tests/test-init-vault.sh
 ```
 
-Expected: PASS — `43 test(s) OK`. La Phase 1 a changé, le bloc `## Paramètres` n'a pas bougé.
+Expected: PASS — `45 test(s) OK`. La Phase 1 a changé, le bloc `## Paramètres` n'a pas bougé.
 
 - [ ] **Step 4: Vérifier la cohérence du fichier à l'œil**
 
@@ -1105,7 +1105,7 @@ Expected: aucune sortie (la mention « 3 questions » et l'ancienne invocation o
 - [ ] **Step 5: Vérifier la suite complète**
 
 Run: `./tests/test-init-vault.sh`
-Expected: PASS — `43 test(s) OK`, sortie 0.
+Expected: PASS — `45 test(s) OK`, sortie 0.
 
 - [ ] **Step 6: Commit**
 
@@ -1120,7 +1120,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 
 ## Vérification finale (après la Task 6)
 
-- [ ] `./tests/test-init-vault.sh` → `43 test(s) OK`
+- [ ] `./tests/test-init-vault.sh` → `45 test(s) OK`
 - [ ] `./init-vault.sh --help` → aide affichée, sortie 0
 - [ ] `git status` propre, six commits ajoutés
 - [ ] **Essai de bout en bout, à déclencher par l'utilisateur** : création d'un
