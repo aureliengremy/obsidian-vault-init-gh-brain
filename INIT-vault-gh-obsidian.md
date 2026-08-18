@@ -8,6 +8,16 @@
 
 ---
 
+## Paramètres
+
+<!-- Rempli par init-vault.sh. Une clé sans valeur est demandée en Phase 1. -->
+- Contexte :
+- Dépôt GitHub :
+- Compte GitHub :
+- Chemin du vault :
+
+---
+
 ## Phase 1 — Paramétrage (questions à poser à l'utilisateur)
 
 Avant de créer quoi que ce soit, poser ces questions et attendre les réponses :
