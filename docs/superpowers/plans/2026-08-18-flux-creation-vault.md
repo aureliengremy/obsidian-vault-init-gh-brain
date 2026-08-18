@@ -104,14 +104,6 @@ run() {
   return 0
 }
 
-# run_tty <réponses-sur-stdin> <args...> : force le mode interactif
-run_tty() {
-  local answers=$1; shift
-  RUN_OUT=$(printf '%s' "$answers" | VAULT_INIT_ASSUME_TTY=1 "$SCRIPT" "$@" 2>&1)
-  RUN_RC=$?
-  return 0
-}
-
 printf '\n%sTests init-vault.sh%s\n\n' "$BOLD" "$RESET"
 
 # --- 1. Le kit expose le bloc Paramètres vide ---------------------------
@@ -546,7 +538,21 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 - Consumes: `ask`, `is_tty`, `normalise_contexte` de la Task 2.
 - Produces: ordre de prompt figé — `parent`, `nom`, `contexte`, `dépôt`, `compte`, puis confirmation `PRO`. Les tests de la Task 3 et le skill de la Task 5 dépendent de cet ordre.
 
-- [ ] **Step 1: Écrire les tests qui échouent**
+- [ ] **Step 1: Ajouter le helper `run_tty` au harness**
+
+Dans `tests/test-init-vault.sh`, juste après la fonction `run`, insérer :
+
+```bash
+# run_tty <réponses-sur-stdin> <args...> : force le mode interactif
+run_tty() {
+  local answers=$1; shift
+  RUN_OUT=$(printf '%s' "$answers" | VAULT_INIT_ASSUME_TTY=1 "$SCRIPT" "$@" 2>&1)
+  RUN_RC=$?
+  return 0
+}
+```
+
+- [ ] **Step 2: Écrire les tests qui échouent**
 
 Dans `tests/test-init-vault.sh`, insérer ce bloc **avant** la section `# --- Bilan ---` :
 
@@ -627,12 +633,12 @@ check "$RUN_RC" "0" "PRO accepté : sortie 0"
 rm -rf "$TMP"
 ```
 
-- [ ] **Step 2: Lancer les tests pour vérifier qu'ils échouent**
+- [ ] **Step 3: Lancer les tests pour vérifier qu'ils échouent**
 
 Run: `./tests/test-init-vault.sh`
 Expected: FAIL — les cas interactifs échouent (`ask` ne lit pas stdin, le contexte manquant tue le script), sortie 1.
 
-- [ ] **Step 3: Rendre `ask` interactive**
+- [ ] **Step 4: Rendre `ask` interactive**
 
 Dans `init-vault.sh`, remplacer la fonction `ask` par :
 
@@ -660,7 +666,7 @@ ask() {
 }
 ```
 
-- [ ] **Step 4: Rendre le contexte interactif**
+- [ ] **Step 5: Rendre le contexte interactif**
 
 Dans `init-vault.sh`, remplacer le bloc contexte :
 
@@ -691,7 +697,7 @@ else
 fi
 ```
 
-- [ ] **Step 5: Ajouter la confirmation PRO**
+- [ ] **Step 6: Ajouter la confirmation PRO**
 
 Dans `init-vault.sh`, juste après la ligne `ask ACCOUNT "Compte ou organisation GitHub" "$GH_ACCOUNT"`, insérer :
 
@@ -709,12 +715,12 @@ if [ "$CONTEXTE" = "PRO" ] && is_tty; then
 fi
 ```
 
-- [ ] **Step 6: Relancer les tests pour vérifier qu'ils passent**
+- [ ] **Step 7: Relancer les tests pour vérifier qu'ils passent**
 
 Run: `./tests/test-init-vault.sh`
 Expected: PASS — `43 test(s) OK`, sortie 0.
 
-- [ ] **Step 7: Vérifier une session interactive réelle**
+- [ ] **Step 8: Vérifier une session interactive réelle**
 
 Run: `./init-vault.sh --no-launch`
 Répondre : dossier parent `/tmp/vaults-essai`, nom `vault-essai`, contexte `1`, dépôt (Entrée), compte (Entrée ou un nom).
@@ -726,7 +732,7 @@ Nettoyer :
 rm -rf /tmp/vaults-essai
 ```
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add init-vault.sh tests/test-init-vault.sh
