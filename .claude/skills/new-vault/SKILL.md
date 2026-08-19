@@ -109,7 +109,10 @@ puis dérouler ses phases :
 
 Terminer par :
 
-- le chemin du vault et l'URL du dépôt ;
+- le chemin du vault, et l'URL du dépôt si la Phase 3 l'a créé. Si elle a pris
+  le chemin de secours (pas de `gh` utilisable), le dire franchement : le vault
+  est complet et commité en local, il n'a pas encore de dépôt distant — et
+  redonner les commandes manuelles à lancer plus tard ;
 - les gestes suivants : ouvrir le vault dans Obsidian, activer le CLI
   (Réglages → Général), ouvrir chaque `.base` une fois pour valider sa syntaxe.
 

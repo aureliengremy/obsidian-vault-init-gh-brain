@@ -422,7 +422,10 @@ Structure :
      états contradictoires repérés -->
 ```
 
-Le remplir une première fois (vide mais structuré).
+Le remplir une première fois (vide mais structuré). Contrairement aux fichiers
+de `_templates/`, ce n'est **pas** un gabarit : les `{{…}}` ci-dessus se
+remplacent par leurs valeurs réelles dès cette première écriture — la date du
+jour, et le nombre de notes effectivement présentes dans `0-inbox/`.
 
 ---
 
@@ -431,7 +434,15 @@ Le remplir une première fois (vide mais structuré).
 Toutes les commandes suivantes s'exécutent depuis le dossier du vault
 (« Chemin du vault »), jamais depuis le dépôt du kit.
 
-1. `git init` puis premier commit : `initialise le vault (structure PARA)`.
+1. Initialiser le dépôt et **fixer la branche à `main`** — ne pas laisser le
+   défaut de la machine décider, sans quoi deux vaults créés sur deux postes
+   n'auraient pas la même convention :
+   ```bash
+   git init
+   git branch -M main
+   git add -A
+   git commit -m "initialise le vault (structure PARA)"
+   ```
 2. Créer le dépôt : `gh repo create <compte>/<depot> --private --source=. --push`,
    où `<compte>` est la valeur de la clé « Compte GitHub » et `<depot>` celle de
    la clé « Dépôt GitHub ».
@@ -447,6 +458,7 @@ Toutes les commandes suivantes s'exécutent depuis le dossier du vault
      git push -u origin main
      ```
 4. Vérifications finales :
+   - `git branch --show-current` → `main`.
    - `git remote -v` → un seul remote, le bon compte.
    - Aucun sous-module, aucun chemin pointant hors du vault.
    - `git status` propre.
