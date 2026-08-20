@@ -135,6 +135,12 @@ de ce vault : conventions, structure, règles et leçons apprises.
 > Pourquoi ce détour : `AGENTS.md` contient tout le réel. `CLAUDE.md` n'est
 > qu'un pointeur, ce qui rend le vault portable vers n'importe quel autre
 > agent (Codex, etc.) au coût d'une ligne.
+>
+> **Corollaire, à rappeler à l'utilisateur s'il l'ignore :** rien d'autre ne
+> s'écrit jamais dans `CLAUDE.md` — ni conventions, ni règles, ni « Leçons
+> apprises ». Tout cela vit dans `AGENTS.md`. Une consigne rangée dans
+> `CLAUDE.md` serait invisible pour tout agent qui ne lit pas ce nom de
+> fichier — précisément ce que le pointeur sert à éviter.
 
 ### 2.4 `AGENTS.md` (générer à partir de ce gabarit)
 
@@ -240,9 +246,10 @@ Ne jamais parcourir le vault à l'aveugle. Dans l'ordre :
 2. Proposer un commit : message court, français, au présent
    (`ajoute notes projet X`, `archive projet Y`, `revue hebdo`).
 3. **Rétrospective** : si l'utilisateur a corrigé l'agent pendant la session,
-   proposer un diff sur ce fichier — une ligne dans « Leçons apprises » si la
-   correction vaut pour tout le vault, ou une mise à jour du template/de la
-   note concernée si elle est spécifique. L'utilisateur valide chaque diff.
+   proposer un diff sur **ce fichier, `AGENTS.md`** — une ligne dans « Leçons
+   apprises » si la correction vaut pour tout le vault, ou une mise à jour du
+   template/de la note concernée si elle est spécifique. L'utilisateur valide
+   chaque diff. Jamais dans `CLAUDE.md`, qui reste un pointeur d'une ligne.
 
 ## Audit anti-pourrissement (à la revue hebdo, sur demande)
 
