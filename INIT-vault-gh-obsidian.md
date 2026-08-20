@@ -467,11 +467,13 @@ fichiers inertes :
 }
 ```
 
-**`.obsidian/core-plugins.json`** — état explicite, pas les défauts de la
-machine. Deux entrées ne sont pas négociables : `"bases": true`, sans quoi les
-trois vues du §2.6 ne s'ouvrent pas, et `"sync": false`, parce qu'un vault
-desktop sans sync automatique doit l'être dans la config, pas seulement dans le
-texte de l'AGENTS.md :
+**`.obsidian/core-plugins.json`** — les **31 clés** qu'Obsidian écrit lui-même,
+au complet. Une liste partielle ne casse rien, mais l'app complète les clés
+manquantes au premier lancement et réécrit le fichier : le vault fraîchement
+commité serait sale avant la première note. Deux valeurs comptent ici :
+`"bases": true`, sans quoi les trois vues du §2.6 ne s'ouvrent pas, et
+`"sync": false`, parce qu'un vault desktop sans sync automatique doit l'être
+dans la config, pas seulement dans le texte de l'AGENTS.md :
 
 ```json
 {
@@ -480,22 +482,32 @@ texte de l'AGENTS.md :
   "switcher": true,
   "graph": true,
   "backlink": true,
+  "canvas": true,
   "outgoing-link": true,
   "tag-pane": true,
+  "footnotes": false,
   "properties": true,
   "page-preview": true,
+  "daily-notes": true,
   "templates": true,
   "note-composer": true,
   "command-palette": true,
+  "slash-command": false,
+  "editor-status": true,
+  "bookmarks": true,
+  "markdown-importer": false,
+  "zk-prefixer": false,
+  "random-note": false,
   "outline": true,
   "word-count": true,
+  "slides": false,
+  "audio-recorder": false,
+  "workspaces": false,
   "file-recovery": true,
-  "bookmarks": true,
-  "bases": true,
-  "canvas": false,
-  "daily-notes": false,
+  "publish": false,
   "sync": false,
-  "publish": false
+  "bases": true,
+  "webviewer": false
 }
 ```
 
