@@ -102,7 +102,11 @@ vault/
 └── _assets/             # images, pièces jointes
 ```
 
-Ajouter un `.gitkeep` dans chaque dossier vide.
+Ajouter un `.gitkeep` dans chaque dossier vide — **et dans `0-inbox/`**, même
+s'il reçoit `bienvenue.md` : c'est le seul dossier que le rituel hebdomadaire a
+vocation à vider, et git cesse de suivre un dossier dès qu'il ne contient plus
+aucun fichier suivi. Sans ce garde, une revue hebdo réussie ferait disparaître
+l'inbox du prochain clone.
 
 ### 2.2 `.gitignore` (contenu exact)
 
@@ -271,7 +275,10 @@ Quand l'utilisateur lance la revue hebdo, proposer un audit :
 ## Règles dures
 
 - Ne jamais supprimer une note — toujours archiver.
-- Ne jamais réorganiser l'arborescence de premier niveau.
+- Ne jamais réorganiser l'arborescence de premier niveau. Corollaire : quand
+  un dossier de la structure se vide (l'inbox après un tri, par exemple), y
+  laisser ou y remettre un `.gitkeep` — un dossier sans fichier suivi n'existe
+  plus pour git, et l'arborescence se perdrait au clone suivant.
 - Ne jamais ajouter de sync automatique, hook, CI ou tâche planifiée sans
   demande explicite.
 - Jamais de token, secret ou credential dans le vault, même dans une note.
@@ -409,6 +416,11 @@ views:
 
 Une courte note (la rédiger) expliquant le premier geste : toute idée se
 capture ici sans réfléchir au classement ; le tri se fait à la revue hebdo.
+
+Contrainte de rédaction : cette note est soumise aux mêmes règles que le reste
+du vault. Ne pas écrire qu'elle « peut être supprimée une fois lue » — les
+règles dures de l'AGENTS.md interdisent la suppression. Elle **s'archive** dans
+`4-archives/`, et ce premier geste est justement le premier tri d'inbox.
 
 ### 2.8 `_dashboards/dashboard.md`
 
