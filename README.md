@@ -75,7 +75,7 @@ obsidian-vault-init-gh-brain/
 | [Claude Code](https://claude.com/claude-code) | exécute l'INIT et pilote le vault | ✅ |
 | `git` | versionnement | ✅ |
 | [GitHub CLI](https://cli.github.com) (`gh`), authentifié | création du dépôt privé | Recommandé |
-| Obsidian ≥ 1.12 + CLI activé (Réglages → Général) | interroger les `.base` sans lire les fichiers | Recommandé |
+| Obsidian ≥ 1.12 + CLI activé (Réglages → Général → Avancé) | interroger les `.base` sans lire les fichiers | Recommandé |
 
 ## Usage
 

@@ -162,7 +162,7 @@ fi
 if command -v obsidian >/dev/null 2>&1; then
   ok "Obsidian CLI présent (les vues .base pourront être interrogées)"
 else
-  warn "Obsidian CLI absent (Obsidian ≥ 1.12, Réglages → Général)."
+  warn "Obsidian CLI absent (Obsidian ≥ 1.12, Réglages → Général → Avancé)."
   warn "Non bloquant : l'agent utilisera le fallback dashboard.md."
 fi
 

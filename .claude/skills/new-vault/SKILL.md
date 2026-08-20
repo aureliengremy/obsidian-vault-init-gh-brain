@@ -114,7 +114,7 @@ Terminer par :
   est complet et commité en local, il n'a pas encore de dépôt distant — et
   redonner les commandes manuelles à lancer plus tard ;
 - les gestes suivants : ouvrir le vault dans Obsidian, activer le CLI
-  (Réglages → Général), ouvrir chaque `.base` une fois pour valider sa syntaxe.
+  (Réglages → Général → Avancé), ouvrir chaque `.base` une fois pour valider sa syntaxe.
 
 ## Ce que ce skill ne fait pas
 

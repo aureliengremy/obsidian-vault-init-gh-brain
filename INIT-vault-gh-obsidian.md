@@ -233,7 +233,7 @@ Corollaires :
 Ne jamais parcourir le vault à l'aveugle. Dans l'ordre :
 
 1. **Obsidian CLI** (officiel, Obsidian ≥ 1.12, CLI activé dans
-   Réglages → Général). L'app se lance en arrière-plan si besoin.
+   Réglages → Général → Avancé). L'app se lance en arrière-plan si besoin.
    Commandes utiles :
    - `obsidian base:query path="_bases/projets-actifs.base" format=json`
      → l'état des projets sans ouvrir une seule note de projet
@@ -579,7 +579,7 @@ Toutes les commandes suivantes s'exécutent depuis le dossier du vault
       dashboard initialisé, bienvenue.md
 - [ ] `.obsidian/` versionné (4 fichiers), sync désactivé, dossier de
       templates réglé sur `_templates`
-- [ ] CLI Obsidian activée (Réglages → Général) — l'`AGENTS.md` généré en fait
+- [ ] CLI Obsidian activée (Réglages → Général → Avancé) — l'`AGENTS.md` généré en fait
       l'étape 1 de sa stratégie de lecture ; sans elle, le vault démarre sur le
       fallback dashboard
 - [ ] Dépôt GitHub privé créé, poussé, isolé
