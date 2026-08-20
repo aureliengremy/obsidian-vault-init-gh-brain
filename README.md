@@ -47,7 +47,7 @@ vault/
 ├── AGENTS.md            # mémoire permanente : conventions, règles, leçons
 ├── .gitignore           # config Obsidian ignorée, exceptions choisies
 ├── 0-inbox/             # capture brute, triée à la revue hebdo
-├── 1-projects/          # 1 dossier/projet, index.md avec État courant + Journal
+├── 1-projects/          # 1 dossier/projet, <slug>.md avec État courant + Journal
 ├── 2-areas/             # responsabilités continues
 ├── 3-resources/         # références sans engagement
 ├── 4-archives/          # on n'efface jamais, on archive
