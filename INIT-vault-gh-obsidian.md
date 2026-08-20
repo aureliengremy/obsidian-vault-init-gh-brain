@@ -85,7 +85,7 @@ vault/
 ├── .gitignore           # §2.2
 ├── 0-inbox/
 │   └── bienvenue.md     # §2.7
-├── 1-projects/          # 1 sous-dossier par projet, chacun avec index.md
+├── 1-projects/          # 1 sous-dossier par projet, chacun avec <slug>.md
 ├── 2-areas/
 ├── 3-resources/
 ├── 4-archives/
@@ -218,9 +218,13 @@ Corollaires :
 - Une idée = une note ; scinder au-delà de ~300 lignes ou deux idées.
 - Toute nouvelle note est créée **depuis le template correspondant**
   de `_templates/` — jamais de structure improvisée.
-- Chaque projet a un `index.md` : Objectif, Contraintes, Définition du
-  terminé, État courant, Journal, Prochaines étapes, Notes liées.
-- **Reprendre un projet** = charger son `index.md` (État courant + Journal),
+- Chaque projet vit dans son dossier `1-projects/<slug>/` et sa note d'index
+  porte le nom du dossier : `1-projects/<slug>/<slug>.md`. Jamais `index.md` —
+  le nom de fichier est la clé de résolution d'Obsidian, huit `index.md`
+  donneraient huit notes homonymes et `[[<slug>]]` ne pointerait sur aucune.
+  Sections : Objectif, Contraintes, Définition du terminé, État courant,
+  Journal, Prochaines étapes, Notes liées.
+- **Reprendre un projet** = charger sa note d'index (État courant + Journal),
   jamais se fier à la mémoire d'une conversation précédente. L'index doit
   donc toujours suffire à reprendre le travail après des semaines.
 
@@ -232,7 +236,7 @@ Ne jamais parcourir le vault à l'aveugle. Dans l'ordre :
    Réglages → Général). L'app se lance en arrière-plan si besoin.
    Commandes utiles :
    - `obsidian base:query path="_bases/projets-actifs.base" format=json`
-     → l'état des projets sans lire un seul index.md
+     → l'état des projets sans ouvrir une seule note de projet
    - `obsidian search query="..." format=json limit=10`
    - `obsidian backlinks file="Nom de note"`
    - `obsidian property:search name="statut" value="actif"`
@@ -510,6 +514,11 @@ dans la config, pas seulement dans le texte de l'AGENTS.md :
   "webviewer": false
 }
 ```
+
+**Écrire ces quatre fichiers sans saut de ligne final** : c'est le format
+qu'Obsidian produit. Un fichier commité avec un `\n` de fin réapparaît en
+modifié dès le premier réglage touché dans l'app, et le vault n'est alors plus
+jamais propre — le rituel de fin de session commence par du bruit.
 
 Ces fichiers sont versionnés (le §2.2 les ré-inclut) ; `workspace.json`, lui,
 reste ignoré — c'est de l'état d'interface volatile.
