@@ -115,6 +115,7 @@ Ajouter un `.gitkeep` dans chaque dossier vide.
 !.obsidian/appearance.json
 !.obsidian/core-plugins.json
 !.obsidian/community-plugins.json
+!.obsidian/templates.json
 
 # Jamais versionné : état d'interface volatile
 .obsidian/workspace.json
@@ -292,7 +293,7 @@ créé: {{date}}
 tags: []
 ---
 
-# {{titre}}
+# {{title}}
 
 ## Objectif
 
@@ -327,7 +328,7 @@ créé: {{date}}
 tags: []
 ---
 
-# {{titre}}
+# {{title}}
 ```
 
 **`revue-hebdo.md` :**
@@ -434,6 +435,73 @@ de `_templates/`, ce n'est **pas** un gabarit : les `{{…}}` ci-dessus se
 remplacent par leurs valeurs réelles dès cette première écriture — la date du
 jour, et le nombre de notes effectivement présentes dans `0-inbox/`.
 
+### 2.9 Config Obsidian (`.obsidian/`)
+
+Le `.gitignore` du §2.2 garde quatre fichiers de config — encore faut-il qu'ils
+existent. Les créer ici, **avant la première ouverture du vault dans Obsidian** :
+l'app écrit ces fichiers au premier lancement et écraserait ce qui n'y est pas
+encore. Générer le dossier `.obsidian/` et ses quatre fichiers.
+
+**`.obsidian/app.json`** — le §2.1 crée `_assets/` ; sans cette clé, Obsidian
+n'y déposerait jamais les pièces jointes :
+
+```json
+{
+  "attachmentFolderPath": "_assets"
+}
+```
+
+**`.obsidian/appearance.json`** — laissé aux défauts, versionné pour que
+l'apparence choisie plus tard suive le vault :
+
+```json
+{}
+```
+
+**`.obsidian/templates.json`** — sans quoi le §2.5 resterait un dossier de
+fichiers inertes :
+
+```json
+{
+  "folder": "_templates"
+}
+```
+
+**`.obsidian/core-plugins.json`** — état explicite, pas les défauts de la
+machine. Deux entrées ne sont pas négociables : `"bases": true`, sans quoi les
+trois vues du §2.6 ne s'ouvrent pas, et `"sync": false`, parce qu'un vault
+desktop sans sync automatique doit l'être dans la config, pas seulement dans le
+texte de l'AGENTS.md :
+
+```json
+{
+  "file-explorer": true,
+  "global-search": true,
+  "switcher": true,
+  "graph": true,
+  "backlink": true,
+  "outgoing-link": true,
+  "tag-pane": true,
+  "properties": true,
+  "page-preview": true,
+  "templates": true,
+  "note-composer": true,
+  "command-palette": true,
+  "outline": true,
+  "word-count": true,
+  "file-recovery": true,
+  "bookmarks": true,
+  "bases": true,
+  "canvas": false,
+  "daily-notes": false,
+  "sync": false,
+  "publish": false
+}
+```
+
+Ces fichiers sont versionnés (le §2.2 les ré-inclut) ; `workspace.json`, lui,
+reste ignoré — c'est de l'état d'interface volatile.
+
 ---
 
 ## Phase 3 — Git & GitHub
@@ -468,6 +536,9 @@ Toutes les commandes suivantes s'exécutent depuis le dossier du vault
    - `git branch --show-current` → `main`.
    - `git remote -v` → un seul remote, le bon compte.
    - Aucun sous-module, aucun chemin pointant hors du vault.
+   - `git ls-files .obsidian` → **4 fichiers** (`app.json`, `appearance.json`,
+     `core-plugins.json`, `templates.json`). Zéro fichier = le §2.9 a été sauté,
+     et la config ne sera jamais versionnée.
    - `git status` propre.
 
 ---
@@ -485,5 +556,10 @@ Toutes les commandes suivantes s'exécutent depuis le dossier du vault
 - [ ] `CLAUDE.md` pointeur + `AGENTS.md` adapté au contexte PERSO/PRO
 - [ ] 3 templates (projet avec État courant / Journal), 3 `.base`,
       dashboard initialisé, bienvenue.md
+- [ ] `.obsidian/` versionné (4 fichiers), sync désactivé, dossier de
+      templates réglé sur `_templates`
+- [ ] CLI Obsidian activée (Réglages → Général) — l'`AGENTS.md` généré en fait
+      l'étape 1 de sa stratégie de lecture ; sans elle, le vault démarre sur le
+      fallback dashboard
 - [ ] Dépôt GitHub privé créé, poussé, isolé
 - [ ] INIT archivé
